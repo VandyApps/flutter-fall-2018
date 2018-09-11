@@ -1,24 +1,34 @@
-# Flutter - Fall 2018 Session
+# Flutter - Fall 2018 Session <img src="https://cdn-images-1.medium.com/max/1200/1*5-aoK8IBmXve5whBQM90GA.png" alt="Flutter Logo" width="100"/>
 
 ### This is where all code in the session will be located
 
 ## Schedule
 1. **Week 1**: Downloading the tools and intro to widgets
-   1. [Here](https://docs.google.com/presentation/d/10JftVNRk1Z14yZdmTTqQgVasUAePC3NxB2vZPaCelL4/edit?usp=sharing) is the link to the slideshow
+   1. [Here][1] is the link to the slideshow
 2. **Week 2**: State and Navigation
 3. **Week 3-7**: TBD - building an application
 
 ## Tools
-- [Flutter](https://flutter.io)
-- [Git](https://git-scm.com/downloads)
-- [Android Studio Stable Release](https://developer.android.com/studio/)
-- [Android Studio Preview](https://developer.android.com/studio/preview/)
+- [Flutter][2]
+- [Git][3]
+- [Android Studio Stable Release][4]
+- [Android Studio Preview][5]
   - Note: the Canary Version will most likely have bugs
-- [VS Code](https://code.visualstudio.com/)
-- [Xcode](https://developer.apple.com/xcode/)
+- [VS Code][6]
+- [Xcode][7]
 
 <br></br>
 
 ### Communication
-- Join our [slack](vandyapps.slack.com) and then join the \#flutter channel
+- Join our [slack][8] and then join the \#flutter channel
 - Email: quinton.d.hoffman@vanderbilt.edu
+
+
+[1]: https://docs.google.com/presentation/d/10JftVNRk1Z14yZdmTTqQgVasUAePC3NxB2vZPaCelL4/edit?usp=sharing "Session 1 slideshow"
+[2]: https://flutter.io "Flutter"
+[3]: https://git-scm.com/downloads "Git"
+[4]: https://developer.android.com/studio/ "Android Studio"
+[5]: https://developer.android.com/studio/preview/ "Android Studio Preview"
+[6]: https://code.visualstudio.com/ "Visual Studio"
+[7]: https://developer.apple.com/xcode/ "Xcode"
+[8]: vandyapps.slack.com "VandyApps Slack"
