@@ -8,12 +8,6 @@
 2. **Week 2**: State and Navigation
 3. **Week 3-7**: TBD - building an application
 
-### Communication
-- Join our [slack](vandyapps.slack.com) and then join the \#flutter channel
-- Email: quinton.d.hoffman@vanderbilt.edu
-
-<br></br>
-
 ## Tools
 - [Flutter](https://flutter.io)
 - [Git](https://git-scm.com/downloads)
@@ -22,3 +16,9 @@
   - Note: the Canary Version will most likely have bugs
 - [VS Code](https://code.visualstudio.com/)
 - [Xcode](https://developer.apple.com/xcode/)
+
+<br></br>
+
+### Communication
+- Join our [slack](vandyapps.slack.com) and then join the \#flutter channel
+- Email: quinton.d.hoffman@vanderbilt.edu
