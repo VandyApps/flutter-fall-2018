@@ -2,6 +2,10 @@
 
 ### This is where all code in the session will be located
 
+### ***UPDATE***:
+If you are on windows and are having trouble running the Android Emulator and Intel HAXM is already installed, then you might have to enable Intel Hardware Virtualization in BIOS.<br/><br/>To do this, restart your computer and click one of <kbd>F1</kbd>, <kbd>F2</kbd>, <kbd>F10</kbd>, <kbd>delete</kbd>, or <kbd>esc</kbd> when booting up depending on your manufacturer (You can also look up "BIOS keyboard shortcut for &lt;your computer type&gt;"). Then go to advanced and Enable Intel Virtualization Technology. Finally reboot again and check to see if this works.<br/><br/>If this does not work, then some other solutions are available [here](https://stackoverflow.com/questions/21635504/error-during-installing-haxm-vt-x-not-working).
+
+
 ## Schedule
 1. **Week 1**: Downloading the tools and intro to widgets
    1. [Here][1] is the link to the slideshow
@@ -17,7 +21,7 @@
 - [VS Code][6]
 - [Xcode][7]
 
-<br></br>
+<br/>
 
 ### Communication
 - Join our [slack][8] and then join the \#flutter channel
