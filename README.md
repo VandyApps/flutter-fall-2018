@@ -10,8 +10,9 @@ If you are on windows and are having trouble running the Android Emulator and In
 
 ## Schedule
 1. **Week 1**: Downloading the tools and intro to widgets
-   1. [Here][1] is the link to the slideshow
+   1. [Here][1] is the link to the slideshow!
 2. **Week 2**: Widgets and State
+   1. [Here](https://docs.google.com/presentation/d/1X69n9pYdgh9jn8edj46fuqyXIrpo6wYh2rVDzkNIENw/edit?usp=sharing) is the link to the slideshow!
 3. **Week 3-7**: TBD - building an application
 
 ## Tools
