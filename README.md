@@ -1,5 +1,7 @@
 # Flutter - Fall 2018 Session <img src="https://cdn-images-1.medium.com/max/1200/1*5-aoK8IBmXve5whBQM90GA.png" alt="Flutter Logo" width="100"/>
 
+**Submit your app ideas [here](https://goo.gl/forms/mzWKkZCYkAulqWPf1)**
+
 ### This is where all code in the session will be located
 
 ### ***UPDATE***:
@@ -8,8 +10,9 @@ If you are on windows and are having trouble running the Android Emulator and In
 
 ## Schedule
 1. **Week 1**: Downloading the tools and intro to widgets
-   1. [Here][1] is the link to the slideshow
-2. **Week 2**: State and Navigation
+   1. [Here][1] is the link to the slideshow!
+2. **Week 2**: Widgets and State
+   1. [Here](https://docs.google.com/presentation/d/1X69n9pYdgh9jn8edj46fuqyXIrpo6wYh2rVDzkNIENw/edit?usp=sharing) is the link to the slideshow!
 3. **Week 3-7**: TBD - building an application
 
 ## Tools
