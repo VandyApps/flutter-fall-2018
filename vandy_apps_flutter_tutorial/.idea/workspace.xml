@@ -6,7 +6,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb72609-daf3-480f-97bd-049c1325b8f6" name="Default" comment="" />
+    <list default="true" id="0bb72609-daf3-480f-97bd-049c1325b8f6" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
     <ignored path="$PROJECT_DIR$/.pub/" />
@@ -23,8 +26,29 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="107" column="3" lean-forward="true" selection-start-line="107" selection-start-column="3" selection-end-line="107" selection-end-column="3" />
+            <state relative-caret-position="187">
+              <caret line="156" column="77" selection-start-line="156" selection-start-column="77" selection-end-line="156" selection-end-column="77" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="animation.dart" pinned="false" current-in-tab="false">
+        <entry file="file://C:/flutter/packages/flutter/lib/src/animation/animation.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-958">
+              <caret line="43" column="8" selection-start-line="43" selection-start-column="8" selection-end-line="43" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="animation_controller.dart" pinned="false" current-in-tab="false">
+        <entry file="file://C:/flutter/packages/flutter/lib/src/animation/animation_controller.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="145">
+              <caret line="143" column="18" lean-forward="true" selection-start-line="143" selection-start-column="3" selection-end-line="143" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -40,6 +64,11 @@
         <option value="$PROJECT_DIR$/lib/main.dart" />
       </list>
     </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-14" />
+    <option name="width" value="1560" />
+    <option name="height" value="1103" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -70,8 +99,9 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="dart.analysis.tool.window.force.activate" value="true" />
+    <property name="io.flutter.reload.alreadyRun" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RunDashboard">
@@ -147,7 +177,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1240" height="832" extended-state="0" />
+    <frame x="-11" y="0" width="1248" height="882" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="Android Profiler" order="7" show_stripe_button="false" />
@@ -158,7 +188,7 @@
       <window_info anchor="right" id="Capture Analysis" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5025424" side_tool="true" weight="0.32986626" />
       <window_info anchor="bottom" id="Dart Analysis" order="7" sideWeight="0.49745762" weight="0.32986626" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49745762" visible="true" weight="0.32986626" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49745762" visible="true" weight="0.29183957" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32986626" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32986626" />
       <window_info anchor="right" id="Flutter Outline" order="3" weight="0.329661" />
@@ -166,7 +196,7 @@
       <window_info id="Captures" order="2" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21355931" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21212122" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Device File Explorer" order="3" side_tool="true" weight="0.329661" />
       <window_info anchor="right" id="Theme Preview" order="3" />
@@ -216,6 +246,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1836">
           <caret line="108" column="1" selection-start-line="108" selection-start-column="1" selection-end-line="108" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -233,10 +266,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/flutter/packages/flutter/lib/src/animation/animation_controller.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="145">
+          <caret line="143" column="18" lean-forward="true" selection-start-line="143" selection-start-column="3" selection-end-line="143" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/flutter/packages/flutter/lib/src/animation/animation.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-958">
+          <caret line="43" column="8" selection-start-line="43" selection-start-column="8" selection-end-line="43" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="107" column="3" lean-forward="true" selection-start-line="107" selection-start-column="3" selection-end-line="107" selection-end-column="3" />
+        <state relative-caret-position="187">
+          <caret line="156" column="77" selection-start-line="156" selection-start-column="77" selection-end-line="156" selection-end-column="77" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

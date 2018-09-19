@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
@@ -89,12 +91,18 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            ColorChangerTimer(),
             new Text(
               'You have pushed the button this many times:',
             ),
-            new Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            ColorChanger(
+              num: _counter,
+              child: new Text(
+                '$_counter',
+                style: Theme.of(context).textTheme.display1.apply(
+                      color: _counter % 2 == 0 ? Colors.white : Colors.black,
+                    ),
+              ),
             ),
           ],
         ),
@@ -104,6 +112,69 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class ColorChanger extends StatelessWidget {
+  ColorChanger({
+    Key key,
+    @required this.num,
+    @required this.child,
+  }) : super(key: key);
+
+  final int num;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: num % 2 == 0 ? Colors.black : Colors.amberAccent,
+      child: child,
+    );
+  }
+}
+
+class ColorChangerTimer extends StatefulWidget {
+  @override
+  _ColorChangerTimerState createState() => _ColorChangerTimerState();
+}
+
+class _ColorChangerTimerState extends State<ColorChangerTimer>
+    with SingleTickerProviderStateMixin {
+  Timer _timer;
+  Color _color;
+  AnimationController _animationController;
+  Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(duration: Duration(seconds: 4), vsync: this)
+          ..addListener(() => setState(() {}));
+    _animation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+
+    _color = Colors.purple;
+
+    _timer = Timer.periodic(
+        Duration(seconds: 2),
+        (timer) => setState(() {
+              _color = _color == Colors.purple ? Colors.black : Colors.purple;
+            }));
+    _animationController.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 300.0 * _animation.value,
+      height: 300.0 * _animation.value,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        color: _color,
+      ),
     );
   }
 }
