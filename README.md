@@ -1,8 +1,18 @@
 # Flutter - Fall 2018 Session <img src="https://cdn-images-1.medium.com/max/1200/1*5-aoK8IBmXve5whBQM90GA.png" alt="Flutter Logo" width="100"/>
 
+## This is where all code in the session will be located
+
+
 **Submit your app ideas [here](https://goo.gl/forms/mzWKkZCYkAulqWPf1)**
 
-### This is where all code in the session will be located
+### Some additional ways to learn Flutter
+1. [Google Codelabs](https://codelabs.developers.google.com/?cat=Flutter)
+2. [Free Udacity Course](https://in.udacity.com/course/build-native-mobile-apps-with-flutter--ud905)
+3. YouTube
+   1. [MTechViral](https://www.youtube.com/channel/UCFTM1FGjZSkoSPDZgtbp7hA)
+   2. [Google Developers](https://www.youtube.com/user/GoogleDevelopers)
+   3. [Fluttery](https://www.youtube.com/channel/UCtWyVkPpb8An90SNDTNF0Pg)
+4. Additionally, it is helpful to just play around with the code yourself and look stuff up in the [Flutter Docs](https://docs.flutter.io/)
 
 ### ***UPDATE***:
 If you are on windows and are having trouble running the Android Emulator and Intel HAXM is already installed, then you might have to enable Intel Hardware Virtualization in BIOS.<br/><br/>To do this, restart your computer and click one of <kbd>F1</kbd>, <kbd>F2</kbd>, <kbd>F10</kbd>, <kbd>delete</kbd>, or <kbd>esc</kbd> when booting up depending on your manufacturer (You can also look up "BIOS keyboard shortcut for &lt;your computer type&gt;"). Then go to advanced and Enable Intel Virtualization Technology. Finally reboot again and check to see if this works.<br/><br/>If this does not work, then some other solutions are available [here](https://stackoverflow.com/questions/21635504/error-during-installing-haxm-vt-x-not-working).
