@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:events_vu/Events.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 void main() => runApp(new MyApp());
 
@@ -26,6 +29,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
+  StreamSubscription<WebViewStateChanged> streamSubscription;
+  Events events = Events();
+
   final String getEventsCode = '''
     if (document.getElementById("event-discovery-list") !== null)
      Array.from(document.getElementById("event-discovery-list").firstElementChild.children).map(d => {
@@ -55,12 +62,41 @@ class _MyHomePageState extends State<MyHomePage> {
   final String reloadCode = 'location.reload(true)';
 
   @override
+  void initState() {
+    super.initState();
+
+    flutterWebviewPlugin.close();
+    flutterWebviewPlugin.launch('https://anchorlink.vanderbilt.edu/events',
+        hidden: true);
+
+    streamSubscription = flutterWebviewPlugin.onStateChanged.listen((event) {
+      if (event.type == WebViewState.finishLoad) {
+        streamSubscription.cancel();
+        Future.doWhile(
+            () => flutterWebviewPlugin.evalJavascript(getEventsCode).then((s) {
+                  if (s == "null") return true;
+
+                  setState(() => events = Events.fromList(json.decode(s)));
+                  return false;
+                }));
+      }
+    });
+  }
+
+  Widget _buildEventsList(BuildContext context, int index) {
+    return EventContainer(event: events.list[index]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: EventContainer(),
+      body: ListView.builder(
+        itemBuilder: _buildEventsList,
+        itemCount: events.length,
+      ),
     );
   }
 }
