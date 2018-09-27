@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:events_vu/Events.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 void main() => runApp(new MyApp());
@@ -29,63 +30,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-  StreamSubscription<WebViewStateChanged> streamSubscription;
+//  final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
+//  StreamSubscription<WebViewStateChanged> streamSubscription;
   Events events = Events();
 
-  final String getEventsCode = '''
-    if (document.getElementById("event-discovery-list") !== null)
-     Array.from(document.getElementById("event-discovery-list").firstElementChild.children).map(d => {
-      let x = d.firstElementChild.firstElementChild.firstElementChild;
-      let arr = Array.from(x.children);
-      let first = arr[0].firstElementChild.firstElementChild;
-      let ret = {};
-      ret.ended = first.firstElementChild !== null && first.firstElementChild.tagName === "DIV" ? first.firstElementChild.innerText : null;
-      let match = first.lastElementChild.getAttribute('style').match(/url\(["']?(.*[^"'])["']?\)/);
-      ret.eventPic = match !== null ?match[1] : null;
-      ret.title = arr[1].getElementsByTagName('span')[0].innerText;
-      let time_loc = Array.from(arr[2].firstElementChild.children).map(child => child.innerText);
-      ret.time = time_loc[0];
-      ret.location = time_loc[1];
-      let imgL = arr[2].lastElementChild.getElementsByTagName('img');
-      ret.orgPic = imgL.length > 0 ? imgL[0].getAttribute('src') : null;
-      ret.org = arr[2].lastElementChild.getElementsByTagName('span')[0].innerText;
-      return ret;
-    })
-    ''';
-  final String getMoreCode = '''
-        if(document.getElementById("event-discovery-list").nextSibling === null)
-          'none'
-        else
-          document.getElementById("event-discovery-list").nextSibling.getElementsByTagName("button")[0].click();
-      ''';
-  final String reloadCode = 'location.reload(true)';
+  final int numEventsOnStart = 20;
+
+  final String baseUrl = 'https://anchorlink.vanderbilt.edu/api/discovery/';
+  String eventsUrl = '';
 
   @override
   void initState() {
     super.initState();
 
-    flutterWebviewPlugin.close();
-    flutterWebviewPlugin.launch('https://anchorlink.vanderbilt.edu/events',
-        hidden: true);
+    final DateTime now = DateTime.now();
+    final nowUrlStr = now
+        .toIso8601String()
+        .replaceAll(RegExp(r':'), '%3A')
+        .replaceAll(RegExp(r'\.[0-9]*'), '');
 
-    streamSubscription = flutterWebviewPlugin.onStateChanged.listen((event) {
-      if (event.type == WebViewState.finishLoad) {
-        streamSubscription.cancel();
-        Future.doWhile(
-            () => flutterWebviewPlugin.evalJavascript(getEventsCode).then((s) {
-                  if (s == "null") return true;
+    eventsUrl = 'search/events?filter=EndsOn%20ge%20$nowUrlStr-05%3A00&top='
+        '${numEventsOnStart.toString()}&orderBy%5B0%5D=EndsOn%20asc&query='
+        '&context=%7B%22branchIds%22%3A%5B%5D%7D';
 
-                  setState(() => events = Events.fromList(json.decode(s)));
-                  return false;
-                }));
-      }
-    });
+    http
+        .get(baseUrl + eventsUrl)
+        .then((http.Response response) => setState(() =>
+            events = Events.fromList(json.decode(response.body)['value'])))
+        .catchError(
+            (error) => print('Failed to fetch data: ' + error.toString()));
   }
 
-  Widget _buildEventsList(BuildContext context, int index) {
-    return EventContainer(event: events.list[index]);
-  }
+  Widget _buildEventsList(BuildContext context, int index) =>
+      EventContainer(event: events.list[index]);
 
   @override
   Widget build(BuildContext context) {
