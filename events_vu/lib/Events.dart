@@ -131,6 +131,8 @@ class EventContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     BorderRadius borderRadius = BorderRadius.circular(4.0);
+    double profilePicScale = 2.0;
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       shape: RoundedRectangleBorder(
@@ -193,16 +195,39 @@ class EventContainer extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      event._organizationProfilePicture != null
-                          ? Image.network(
-                              event._organizationProfilePicture,
-                              scale: 1.5,
-                            )
-                          : Container(),
+                      ClipOval(
+                        child: event._organizationProfilePicture != null
+                            ? Image.network(
+                                event._organizationProfilePicture,
+                                scale: profilePicScale,
+                              )
+                            : Container(
+                                color: Colors.blueGrey,
+                                constraints: BoxConstraints.expand(
+                                  width: 75.0 / profilePicScale,
+                                  height: 75.0 / profilePicScale,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    event._organizationName[0],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 40 / profilePicScale,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
                       // for event._organizationProfilePicture
                       Expanded(
                         flex: 1,
-                        child: Text(event._organizationName ?? ''),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(event._organizationName ??
+                              'Unknown Organization'),
+                        ),
                       ),
                     ],
                   ),

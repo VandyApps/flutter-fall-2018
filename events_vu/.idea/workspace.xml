@@ -44,11 +44,20 @@
       <file leaf-file-name="Events.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/Events.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="200" column="40" lean-forward="true" selection-start-line="200" selection-start-column="40" selection-end-line="200" selection-end-column="40" />
+            <state relative-caret-position="119">
+              <caret line="222" column="41" selection-start-line="222" selection-start-column="41" selection-end-line="222" selection-end-column="41" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="basic.dart" pinned="false" current-in-tab="false">
+        <entry file="file://C:/flutter/packages/flutter/lib/src/widgets/basic.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-429">
+              <caret line="1723" column="8" selection-start-line="1723" selection-start-column="8" selection-end-line="1723" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -260,7 +269,7 @@
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49914676" visible="true" weight="0.37108794" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49914676" visible="true" weight="0.37108794" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32935917" />
       <window_info id="Captures" order="2" />
@@ -268,7 +277,7 @@
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="right" id="Flutter Inspector" order="3" weight="0.32935154" />
+      <window_info active="true" anchor="right" id="Flutter Inspector" order="3" visible="true" weight="0.32935154" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -432,10 +441,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/flutter/packages/flutter/lib/src/widgets/basic.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-429">
+          <caret line="1723" column="8" selection-start-line="1723" selection-start-column="8" selection-end-line="1723" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/Events.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="200" column="40" lean-forward="true" selection-start-line="200" selection-start-column="40" selection-end-line="200" selection-end-column="40" />
+        <state relative-caret-position="119">
+          <caret line="222" column="41" selection-start-line="222" selection-start-column="41" selection-end-line="222" selection-end-column="41" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
