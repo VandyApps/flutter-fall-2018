@@ -30,35 +30,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-//  final FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
-//  StreamSubscription<WebViewStateChanged> streamSubscription;
-  Events events = Events();
+  Events events = Events(); // empty events
 
-  final int numEventsOnStart = 20;
+  final int numEventsOnStart = 20; // number of events to retrieve on start (and each reload)
 
-  final String baseUrl = 'https://anchorlink.vanderbilt.edu/api/discovery/';
-  String eventsUrl = '';
+  final String baseUrl = 'https://anchorlink.vanderbilt.edu/api/discovery/'; // base api url
+  String eventsUrl = ''; // additional url to get events
 
   @override
   void initState() {
     super.initState();
 
     final DateTime now = DateTime.now();
-    final nowUrlStr = now
-        .toIso8601String()
-        .replaceAll(RegExp(r':'), '%3A')
-        .replaceAll(RegExp(r'\.[0-9]*'), '');
+    final nowUrlStr =
+        now.toIso8601String().replaceAll(RegExp(r':'), '%3A').replaceAll(RegExp(r'\.[0-9]*'), '');
 
+    // url for http get request
     eventsUrl = 'search/events?filter=EndsOn%20ge%20$nowUrlStr-05%3A00&top='
         '${numEventsOnStart.toString()}&orderBy%5B0%5D=EndsOn%20asc&query='
         '&context=%7B%22branchIds%22%3A%5B%5D%7D';
 
+    // get request
     http
         .get(baseUrl + eventsUrl)
-        .then((http.Response response) => setState(() =>
-            events = Events.fromList(json.decode(response.body)['value'])))
-        .catchError(
-            (error) => print('Failed to fetch data: ' + error.toString()));
+        .then((http.Response response) =>
+            setState(() => events = Events.fromList(json.decode(response.body)['value'])))
+        .catchError((error) => print('Failed to fetch data: ' + error.toString()));
   }
 
   Widget _buildEventsList(BuildContext context, int index) =>
