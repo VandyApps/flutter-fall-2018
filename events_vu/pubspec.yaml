@@ -25,7 +25,6 @@ dependencies:
   # http requests
   http: ^0.11.3+17
 
-  flutter_webview_plugin: ^0.2.1+2
   # refresh lists
   pull_to_refresh: ^1.1.5
 

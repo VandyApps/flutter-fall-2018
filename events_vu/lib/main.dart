@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:events_vu/Events.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 void main() => runApp(new MyApp());
 
@@ -37,6 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final String baseUrl = 'https://anchorlink.vanderbilt.edu/api/discovery/'; // base api url
   String eventsUrl = ''; // additional url to get events
 
+  final RefreshController _refreshController = RefreshController();
+  final eventContainerList = <EventContainer>[];
+
   @override
   void initState() {
     super.initState();
@@ -67,9 +69,66 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: ListView.builder(
-        itemBuilder: _buildEventsList,
-        itemCount: events.length,
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        controller: _refreshController,
+        headerBuilder: (context, mode) => ClassicIndicator(
+              mode: mode,
+              releaseText: 'Release to refresh',
+              refreshingText: '',
+              completeText: '',
+              noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
+              failedText: 'Refresh failed',
+              idleText: 'Refresh',
+              iconPos: IconPosition.top,
+              spacing: 5.0,
+              refreshingIcon: const CircularProgressIndicator(strokeWidth: 2.0),
+              failedIcon: const Icon(Icons.clear, color: Colors.grey),
+              completeIcon: const Icon(Icons.done, color: Colors.grey),
+              idleIcon: const Icon(Icons.arrow_downward, color: Colors.grey),
+              releaseIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
+            ),
+        footerBuilder: (context, mode) => ClassicIndicator(
+              mode: mode,
+              releaseText: 'Release to load',
+              refreshingText: '',
+              completeText: '',
+              noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
+              failedText: 'Refresh failed',
+              idleText: 'Load More',
+              iconPos: IconPosition.bottom,
+              spacing: 5.0,
+              refreshingIcon: const CircularProgressIndicator(strokeWidth: 2.0),
+              failedIcon: const Icon(Icons.clear, color: Colors.grey),
+              completeIcon: const Icon(Icons.done, color: Colors.grey),
+              idleIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
+              releaseIcon: const Icon(Icons.arrow_downward, color: Colors.grey),
+            ),
+        footerConfig: RefreshConfig(
+          triggerDistance: 125.0,
+          visibleRange: 100.0,
+        ),
+        headerConfig: RefreshConfig(
+          triggerDistance: 125.0,
+          visibleRange: 100.0,
+          completeDuration: 500,
+        ),
+        onRefresh: (bool up) {
+          if (up) {
+            setState(() {});
+            _refreshController.sendBack(up, RefreshStatus.completed);
+          } else {
+            http.get(baseUrl + eventsUrl + '&skip=${events.length.toString()}').then((response) {
+              setState(() => events.add(json.decode(response.body)['value']));
+              _refreshController.sendBack(up, RefreshStatus.completed);
+            }).catchError((error) => _refreshController.sendBack(up, RefreshStatus.failed));
+          }
+        },
+        child: ListView.builder(
+          itemBuilder: _buildEventsList,
+          itemCount: events.length,
+        ),
       ),
     );
   }

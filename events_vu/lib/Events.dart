@@ -10,7 +10,7 @@ class Events {
   // creates Events object from a list (decoded json)
   Events.fromList(List<dynamic> l) : _eventsList = l.map((item) => Event.fromMap(item)).toList();
 
-  List<Event> get list => _eventsList; // returns the list
+  List<Event> get list => _eventsList; // returns the
 
   int get length => _eventsList.length; // returns length of list
 
@@ -51,6 +51,9 @@ class Event {
   final List<String> _benefitNames; // List<dynamic>
   final double _latitude; // String
   final double _longitude; // String
+
+  // amount of time passed since event ended
+  Duration _timeAfterEnded;
 
   Event.fromMap(Map<String, dynamic> m)
       : _id = int.parse(m['Id']),
@@ -113,6 +116,13 @@ class Event {
       _imagePath = 'https://static.campuslabsengage.com/discovery/images/events/' + defaultImg;
     }
   }
+
+  // returns true if updated and false if not
+  void updateTime(DateTime now) {
+    if (now.isAfter(_endsOn)) {
+      _timeAfterEnded = now.difference(_endsOn);
+    }
+  }
 }
 
 class EventContainer extends StatelessWidget {
@@ -121,15 +131,53 @@ class EventContainer extends StatelessWidget {
   EventContainer({
     Key key,
     this.event,
-  }) : super(key: key);
+  }) : super(key: key) {
+    event.updateTime(DateTime.now());
+  }
 
   String _getStartDateString(DateTime d) {
     d = d.toLocal();
     String formatStr = "EEEE, MMMM d, yyyy 'at' h:mma";
     // if it is the year we are currently in, then don't show the year, otherwise show it
     if (d.year == DateTime.now().year) formatStr = formatStr.replaceAll(RegExp(', yyyy'), '');
-    return DateFormat(formatStr, 'en_US').format(d) + d.timeZoneName;
+    return DateFormat(formatStr, 'en_US').format(d) + ' ' + d.timeZoneName;
   }
+
+  String _getTimeSinceEnd(duration) {
+    if (duration == null) return '';
+    String ended = 'Ended a y ago';
+    if (duration.inMinutes < 60)
+      return duration.inMinutes <= 1
+          ? ended.replaceAll(RegExp(r'y'), 'minute')
+          : ended
+              .replaceFirst(RegExp(r'a'), duration.inMinutes.toString())
+              .replaceAll(RegExp(r'y'), 'minutes');
+    else if (duration.inHours < 24)
+      return duration.inHours <= 1
+          ? ended.replaceAll(RegExp(r'y'), 'hour')
+          : ended
+              .replaceFirst(RegExp(r'a'), duration.inHours.toString())
+              .replaceAll(RegExp(r'y'), 'hours');
+    else
+      return duration.inDays <= 1
+          ? ended.replaceAll(RegExp(r'y'), 'day')
+          : ended
+              .replaceFirst(RegExp(r'a'), duration.inDays.toString())
+              .replaceAll(RegExp(r'y'), 'day');
+  }
+//
+//  @override
+//  void initState() {
+//    super.initState();
+//    event = widget.event;
+//    print(event._name + " created");
+//  }
+//
+//  @override
+//  void dispose() {
+//    super.dispose();
+//    print(event._name + " disposed");
+  //}
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +195,35 @@ class EventContainer extends StatelessWidget {
           ClipRRect(
             borderRadius:
                 BorderRadius.only(topLeft: borderRadius.topLeft, topRight: borderRadius.topRight),
-            child: Image.network(
-              event._imagePath,
+            child: Stack(
+              children: <Widget>[
+                Image.network(
+                  event._imagePath,
+                ),
+                Opacity(
+                  opacity: event._timeAfterEnded == null ? 0.0 : 1.0,
+                  child: Container(
+                    margin: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(8.0),
+                    color: Colors.yellow[100],
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.access_time),
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Text(
+                              _getTimeSinceEnd(event._timeAfterEnded),
+                              style: Theme.of(context).textTheme.subhead,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -176,9 +251,12 @@ class EventContainer extends StatelessWidget {
                       flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4.0),
-                        child: Text(event._startsOn != null
-                            ? _getStartDateString(event._startsOn)
-                            : 'No started date provided'),
+                        child: Text(
+                          event._startsOn != null
+                              ? _getStartDateString(event._startsOn)
+                              : 'No started date provided',
+                          style: Theme.of(context).textTheme.subhead,
+                        ),
                       ),
                     ),
                   ],
@@ -190,7 +268,8 @@ class EventContainer extends StatelessWidget {
                       flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4.0),
-                        child: Text(event._location ?? ''),
+                        child:
+                            Text(event._location ?? '', style: Theme.of(context).textTheme.subhead),
                       ),
                     ),
                   ],
@@ -232,12 +311,16 @@ class EventContainer extends StatelessWidget {
                                 ),
                               ),
                             ),
-                    ), // for event._organizationProfilePicture
+                    ),
+                    // for event._organizationProfilePicture
                     Expanded(
                       flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(event._organizationName ?? 'Unknown Organization'),
+                        child: Text(
+                          event._organizationName ?? 'Unknown Organization',
+                          style: Theme.of(context).textTheme.subhead,
+                        ),
                       ),
                     ),
                   ],
@@ -284,18 +367,10 @@ class EventPage extends StatelessWidget {
         Image.network(event._organizationProfilePicture),
         Text(event._organizationName ?? ''),
         Text(event._organizationNames?.join(" ")),
+        Text(event._categoryNames.join(' ')),
+        Text(event._benefitNames.join(' ')),
         Text(event._theme ?? ''),
       ],
     );
   }
 }
-//final String _location;
-//final DateTime _startsOn; // String
-//final DateTime _endsOn; // String
-//String _imagePath;
-//final String _theme;
-//final List<int> _categoryIds; //? don't need
-//final List<String> _categoryNames; // List<dynamic>
-//final List<String> _benefitNames; // List<dynamic>
-//final double _latitude; // String
-//final double _longitude; // String
