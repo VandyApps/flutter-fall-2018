@@ -56,44 +56,45 @@ class Event {
   Duration _timeAfterEnded;
 
   Event.fromMap(Map<String, dynamic> m)
-      : _id = int.parse(m['Id']),
+      :
         // id in integer form
-        _organizationId = m['OrganizationId'],
+        _id = int.parse(m['Id']),
         // organization in integer form
-        _organizationIds = m['OrganizationIds'].map<int>((item) => int.parse(item)).toList(),
+        _organizationId = m['OrganizationId'],
         // multiple orgs
-        _organizationName = m['OrganizationName'],
+        _organizationIds = m['OrganizationIds'].map<int>((item) => int.parse(item)).toList(),
         // org name
+        _organizationName = m['OrganizationName'],
         _organizationNames = m['OrganizationNames'].map<String>((item) => item as String).toList(),
+        // sets profile pic to null if one is not available
         _organizationProfilePicture = m['OrganizationProfilePicture'] != null
             ? 'https://se-infra-imageserver2.azureedge.net/clink/images/${m['OrganizationProfilePicture']}?preset=small-sq'
             : null,
-        // sets profile pic to null if one is not available
-        _name = m['Name'],
         // name of event
-        _description = m['Description'],
+        _name = m['Name'],
         // event description in HTML
-        _location = m['Location'],
+        _description = m['Description'],
         // event location (name)
-        _startsOn = DateTime.parse(m['StartsOn']),
+        _location = m['Location'],
         // start time in DateTime format
-        _endsOn = DateTime.parse(m['EndsOn']),
+        _startsOn = DateTime.parse(m['StartsOn']),
         // end time in DateTime format
+        _endsOn = DateTime.parse(m['EndsOn']),
+        // null if no image
         _imagePath = m['ImagePath'] != null
             ? 'https://se-infra-imageserver2.azureedge.net/clink/images/' +
                 m['ImagePath'] +
                 '?preset=med-w'
             : null,
-        // null if no image
-        _theme = m['Theme'],
         // theme
+        _theme = m['Theme'],
         _categoryIds = m['CategoryIds'].map<int>((item) => int.parse(item)).toList(),
         _categoryNames = m['CategoryNames'].map<String>((item) => item as String).toList(),
         _benefitNames = m['BenefitNames'].map<String>((item) => item as String).toList(),
-        _latitude = m['Latitude'] != null ? double.parse(m['Latitude']) : null,
         // double lat
-        _longitude = m['Longitude'] != null ? double.parse(m['Longitude']) : null // double long
-  {
+        _latitude = m['Latitude'] != null ? double.parse(m['Latitude']) : null,
+        // double long
+        _longitude = m['Longitude'] != null ? double.parse(m['Longitude']) : null {
     // sets _imagePath correctly if it is null i.e. need a default image
     if (_imagePath == null) {
       String defaultImg = 'learning.jpg'; // if _theme is null then this is the image
@@ -135,6 +136,9 @@ class EventContainer extends StatelessWidget {
     event.updateTime(DateTime.now());
   }
 
+  /// @param d - date to turn into a string
+  /// @return String that represents the date given, showing the year only if it is not the current
+  ///         year
   String _getStartDateString(DateTime d) {
     d = d.toLocal();
     String formatStr = "EEEE, MMMM d, yyyy 'at' h:mma";
@@ -143,7 +147,9 @@ class EventContainer extends StatelessWidget {
     return DateFormat(formatStr, 'en_US').format(d) + ' ' + d.timeZoneName;
   }
 
-  String _getTimeSinceEnd(duration) {
+  /// @param duration - Duration specifying the amount of time since an event has ended
+  /// @return String of nicely formatted time since event end
+  String _getTimeSinceEnd(Duration duration) {
     if (duration == null) return '';
     String ended = 'Ended a y ago';
     if (duration.inMinutes < 60)
@@ -165,19 +171,6 @@ class EventContainer extends StatelessWidget {
               .replaceFirst(RegExp(r'a'), duration.inDays.toString())
               .replaceAll(RegExp(r'y'), 'day');
   }
-//
-//  @override
-//  void initState() {
-//    super.initState();
-//    event = widget.event;
-//    print(event._name + " created");
-//  }
-//
-//  @override
-//  void dispose() {
-//    super.dispose();
-//    print(event._name + " disposed");
-  //}
 
   @override
   Widget build(BuildContext context) {
@@ -189,146 +182,152 @@ class EventContainer extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ClipRRect(
-            borderRadius:
-                BorderRadius.only(topLeft: borderRadius.topLeft, topRight: borderRadius.topRight),
-            child: Stack(
-              children: <Widget>[
-                Image.network(
-                  event._imagePath,
-                ),
-                Opacity(
-                  opacity: event._timeAfterEnded == null ? 0.0 : 1.0,
-                  child: Container(
-                    margin: const EdgeInsets.all(12.0),
-                    padding: const EdgeInsets.all(8.0),
-                    color: Colors.yellow[100],
-                    child: Row(
-                      children: <Widget>[
-                        Icon(Icons.access_time),
-                        Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4.0),
-                            child: Text(
-                              _getTimeSinceEnd(event._timeAfterEnded),
-                              style: Theme.of(context).textTheme.subhead,
+      child: GestureDetector(
+        onTap: () => print('Tapped: ${event._name}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.only(topLeft: borderRadius.topLeft, topRight: borderRadius.topRight),
+              child: Stack(
+                children: <Widget>[
+                  Image.network(
+                    event._imagePath,
+                  ),
+                  Opacity(
+                    opacity: event._timeAfterEnded == null ? 0.0 : 1.0,
+                    child: Container(
+                      margin: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(8.0),
+                      color: Colors.yellow[100],
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.access_time),
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: Text(
+                                _getTimeSinceEnd(event._timeAfterEnded),
+                                style: Theme.of(context).textTheme.subhead,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    event._name ?? 'No name provided',
-                    style: Theme.of(context).textTheme.headline,
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(
-                      Icons.event,
-                      semanticLabel: 'Location',
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4.0),
-                        child: Text(
-                          event._startsOn != null
-                              ? _getStartDateString(event._startsOn)
-                              : 'No started date provided',
-                          style: Theme.of(context).textTheme.subhead,
-                        ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.location_on),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4.0),
-                        child:
-                            Text(event._location ?? '', style: Theme.of(context).textTheme.subhead),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Container(
-              color: Colors.grey[100],
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    ClipOval(
-                      child: event._organizationProfilePicture != null
-                          ? Image.network(
-                              event._organizationProfilePicture,
-                              scale: profilePicScale,
-                            )
-                          : Container(
-                              color: Colors.blueGrey,
-                              constraints: BoxConstraints.expand(
-                                width: 75.0 / profilePicScale,
-                                height: 75.0 / profilePicScale,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  event._organizationName[0],
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 40 / profilePicScale,
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // EVENT NAME
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      event._name ?? 'No name provided',
+                      style: Theme.of(context).textTheme.headline,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  // EVENT LOCATION
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(
+                        Icons.event,
+                        semanticLabel: 'Location',
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(
+                            event._startsOn != null
+                                ? _getStartDateString(event._startsOn)
+                                : 'No started date provided',
+                            style: Theme.of(context).textTheme.subhead,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // EVENT START TIME
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.location_on),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(event._location ?? '',
+                              style: Theme.of(context).textTheme.subhead),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // EVENT ORGANIZATION
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Container(
+                color: Colors.grey[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      ClipOval(
+                        child: event._organizationProfilePicture != null
+                            ? Image.network(
+                                event._organizationProfilePicture,
+                                scale: profilePicScale,
+                              )
+                            : Container(
+                                color: Colors.blueGrey,
+                                constraints: BoxConstraints.expand(
+                                  width: 75.0 / profilePicScale,
+                                  height: 75.0 / profilePicScale,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    event._organizationName[0],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 40 / profilePicScale,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                    ),
-                    // for event._organizationProfilePicture
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          event._organizationName ?? 'Unknown Organization',
-                          style: Theme.of(context).textTheme.subhead,
+                      ), // for event._organizationProfilePicture
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            event._organizationName ?? 'Unknown Organization',
+                            style: Theme.of(context).textTheme.subhead,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
