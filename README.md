@@ -21,7 +21,11 @@
    1. [Here](https://docs.google.com/presentation/d/1X69n9pYdgh9jn8edj46fuqyXIrpo6wYh2rVDzkNIENw/edit?usp=sharing) is the link to the slideshow!
 3. **Week 3**: Events VU - Anchorlink Application
    1. [Here](https://docs.google.com/presentation/d/1hllCaEyMEdfHXxCWNfkx0vq0MuveA6rHJ3O9_G8NOEs/edit?usp=sharing) is the link to the slides for this week!
-4. **Week 4-7**: Events VU - Anchorlink Application
+4. **Week 4**: No meeting
+   1. I have updated the application to use a GET request rather than running a hidden webview. The functionality is the exact same, but this implementation is much more optimized. Unfortunately, there is a lot more code. Look over the code to understand what is happening. I have also made the application look nicer! We will continue from this point next week, so you can re-clone it or reset/revert all your changes and pull it.
+5. **Week 5**: Events VU - Anchorlink Application - Creating an events page
+6. **Week 6**: Events VU - Anchorlink Application
+7. **Week 7**: Events VU - Anchorlink Application
 
 ## Tools
 - [Flutter][2]
