@@ -7,14 +7,16 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+  final String title = 'Events VU';
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Events VU',
+      title: title,
       theme: new ThemeData(
-        primarySwatch: Colors.amber,
+        primarySwatch: Colors.blueGrey,
       ),
-      home: new MyHomePage(title: 'Events VU'),
+      home: new MyHomePage(title: title),
     );
   }
 }
@@ -31,9 +33,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Events events = Events(); // empty events
 
-  final int numEventsOnStart = 20; // number of events to retrieve on start (and each reload)
+  final int numEventsOnStart =
+      20; // number of events to retrieve on start (and each reload)
 
-  final String baseUrl = 'https://anchorlink.vanderbilt.edu/api/discovery/'; // base api url
+  final String baseUrl =
+      'https://anchorlink.vanderbilt.edu/api/discovery/'; // base api url
   String eventsUrl = ''; // additional url to get events
 
   final RefreshController _refreshController = RefreshController();
@@ -44,8 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     final DateTime now = DateTime.now();
-    final nowUrlStr =
-        now.toIso8601String().replaceAll(RegExp(r':'), '%3A').replaceAll(RegExp(r'\.[0-9]*'), '');
+    final nowUrlStr = now
+        .toIso8601String()
+        .replaceAll(RegExp(r':'), '%3A')
+        .replaceAll(RegExp(r'\.[0-9]*'), '');
 
     // url for http get request
     eventsUrl = 'search/events?filter=EndsOn%20ge%20$nowUrlStr-05%3A00&top='
@@ -55,9 +61,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // get request
     http
         .get(baseUrl + eventsUrl)
-        .then((http.Response response) =>
-            setState(() => events = Events.fromList(json.decode(response.body)['value'])))
-        .catchError((error) => print('Failed to fetch data: ' + error.toString()));
+        .then((http.Response response) => setState(() =>
+            events = Events.fromList(json.decode(response.body)['value'])))
+        .catchError(
+            (error) => print('Failed to fetch data: ' + error.toString()));
   }
 
   Widget _buildEventsList(BuildContext context, int index) =>
@@ -119,10 +126,13 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {});
             _refreshController.sendBack(up, RefreshStatus.completed);
           } else {
-            http.get(baseUrl + eventsUrl + '&skip=${events.length.toString()}').then((response) {
+            http
+                .get(baseUrl + eventsUrl + '&skip=${events.length.toString()}')
+                .then((response) {
               setState(() => events.add(json.decode(response.body)['value']));
               _refreshController.sendBack(up, RefreshStatus.completed);
-            }).catchError((error) => _refreshController.sendBack(up, RefreshStatus.failed));
+            }).catchError((error) =>
+                    _refreshController.sendBack(up, RefreshStatus.failed));
           }
         },
         child: ListView.builder(
