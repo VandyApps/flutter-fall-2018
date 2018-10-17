@@ -24,6 +24,8 @@ dependencies:
   flutter_html_view: ^0.5.8
   # http requests
   http: ^0.11.3+17
+  # Map API
+  map_view: ^0.0.14
 
   # refresh lists
   pull_to_refresh: ^1.1.5

@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:events_vu/Events.dart';
 import 'package:http/http.dart' as http;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:map_view/map_view.dart';
 
-void main() => runApp(new MyApp());
+const String API_KEY = 'AIzaSyCZJj9PWNpB2TLrqfz3HsZw6eJBkr9nd0A';
+
+void main() {
+  MapView.setApiKey(API_KEY);
+  runApp(new MyApp());
+}
 
 class MyApp extends StatelessWidget {
   final String title = 'Events VU';

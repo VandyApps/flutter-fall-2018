@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:events_vu/MapPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html_view/flutter_html_view.dart';
 import 'package:intl/intl.dart';
@@ -603,9 +604,15 @@ class _EventLocation extends StatelessWidget {
       padding: padding,
       child: InkWell(
         borderRadius: BorderRadius.circular(4.0),
-        onTap: () => (latitude != null && longitude != null)
-            ? print('[${latitude.toString()}, ${longitude.toString()}]')
-            : _askToAddLocation(context),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (BuildContext context) => MapPage(
+                  location: location,
+                  latitude: latitude,
+                  longitude: longitude,
+                ))),
+//        (latitude != null && longitude != null)
+//            ? print('[${latitude.toString()}, ${longitude.toString()}]')
+//            : _askToAddLocation(context),
         child: Row(
           children: <Widget>[
             showIcon ? _icon(context) : Container(),
