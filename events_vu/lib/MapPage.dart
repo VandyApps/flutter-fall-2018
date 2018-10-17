@@ -1,4 +1,4 @@
-import 'package:events_vu/main.dart';
+import 'package:events_vu/API_KEY.dart';
 import 'package:flutter/material.dart';
 import 'package:map_view/map_view.dart';
 

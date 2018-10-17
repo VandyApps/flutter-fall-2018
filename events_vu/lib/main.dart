@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'package:events_vu/API_KEY.dart';
 import 'package:flutter/material.dart';
 import 'package:events_vu/Events.dart';
 import 'package:http/http.dart' as http;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:map_view/map_view.dart';
 
-=======> /* enter api key below */
-const String API_KEY ='your_api_key_here';
-
+/*
+NOTE
+I have created another file called API_KEY.dart and stored my API key there.
+You can do the same and this will work.
+ */
 void main() {
   MapView.setApiKey(API_KEY);
   runApp(new MyApp());

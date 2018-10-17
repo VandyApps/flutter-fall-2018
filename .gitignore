@@ -1,1 +1,3 @@
 events_vu_private/**
+events_vu/android/app/src/main/AndroidManifest.xml
+events_vu/lib/API_KEY.dart
