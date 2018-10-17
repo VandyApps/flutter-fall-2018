@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:map_view/map_view.dart';
 
-const String API_KEY = 'AIzaSyCZJj9PWNpB2TLrqfz3HsZw6eJBkr9nd0A';
+=======> /* enter api key below */
+const String API_KEY ='your_api_key_here';
 
 void main() {
   MapView.setApiKey(API_KEY);
