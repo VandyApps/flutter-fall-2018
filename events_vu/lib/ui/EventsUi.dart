@@ -5,75 +5,85 @@ import 'package:flutter_html_view/flutter_html_view.dart';
 import 'package:intl/intl.dart';
 
 class EventContainer extends StatelessWidget {
-  final EventBloc _eventBloc = EventBloc();
-  final Event event;
+  final EventBloc eventBloc;
 
   EventContainer({
     Key key,
-    this.event,
-  }) : super(key: key) {
-    event.updateTime(DateTime.now());
-  }
+    this.eventBloc,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     BorderRadius borderRadius = BorderRadius.circular(4.0);
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-      ),
-      child: GestureDetector(
-        onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => EventPage(event: event))),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: borderRadius.topLeft,
-                topRight: borderRadius.topRight,
-              ),
-              child: _EventPicture(
-                imagePath: event.imagePath,
-                timeAfterEnded: event.timeAfterEnded,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _EventTitle(title: event.name),
-                  _EventDate(
-                    startTime: event.startsOn,
+    return StreamBuilder(
+      stream: eventBloc.stream,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData)
+          return SizedBox(
+            width: 100.0,
+            height: 100.0,
+            child: Container(color: Colors.red),
+          );
+        Event event = snapshot.data;
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: borderRadius,
+          ),
+          child: GestureDetector(
+            onTap: () => event.name == null
+                ? null
+                : Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => EventPage(event: event))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: borderRadius.topLeft,
+                    topRight: borderRadius.topRight,
                   ),
-                  _EventLocation(
-                    event: event,
-                    location: event.location,
-                    latitude: event.latitude,
-                    longitude: event.longitude,
+                  child: _EventPicture(
+                    imagePath: event.imagePath,
+                    timeAfterEnded: event.timeAfterEnded,
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Container(
-                color: Colors.grey[100],
-                child: _EventOrg(
-                  padding: const EdgeInsets.all(8.0),
-                  orgName: event.organizationName,
-                  orgNames: event.organizationNames,
-                  orgPicturePath: event.organizationProfilePicture,
-                  orgPicturePaths: event.organizationProfilePictures,
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _EventTitle(title: event.name),
+                      _EventDate(
+                        startTime: event.startsOn,
+                      ),
+                      _EventLocation(
+                        event: event,
+                        location: event.location,
+                        latitude: event.latitude,
+                        longitude: event.longitude,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Container(
+                    color: Colors.grey[100],
+                    child: _EventOrg(
+                      padding: const EdgeInsets.all(8.0),
+                      orgName: event.organizationName,
+                      orgNames: event.organizationNames,
+                      orgPicturePath: event.organizationProfilePicture,
+                      orgPicturePaths: event.organizationProfilePictures,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -156,7 +166,6 @@ class EventPage extends StatelessWidget {
                                 ))
                             .toList(),
                         spacing: 4.0,
-                        runSpacing: 4.0,
                       ),
                 event.benefitNames.isEmpty
                     ? Container()
@@ -173,7 +182,6 @@ class EventPage extends StatelessWidget {
                                 ))
                             .toList(),
                         spacing: 4.0,
-                        runSpacing: 4.0,
                       ),
                 _EventOrg(
                   orgName: event.organizationName,
@@ -216,8 +224,7 @@ class _EventPicture extends StatelessWidget {
                         : 'Ended ${timeAfterEnded.inDays.toString()} days ago'))),
         super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _picture(BuildContext context) {
     return Stack(
       children: <Widget>[
         FadeInImage.assetNetwork(
@@ -248,6 +255,24 @@ class _EventPicture extends StatelessWidget {
       ],
     );
   }
+
+  Widget _placeholder(BuildContext context) {
+    return SizedBox(
+      width: 1200.0,
+      height: 200.0,
+      child: Container(
+        color: Colors.black12,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (imagePath == null)
+      return _placeholder(context);
+    else
+      return _picture(context);
+  }
 }
 
 class _EventTitle extends StatelessWidget {
@@ -260,15 +285,29 @@ class _EventTitle extends StatelessWidget {
     this.padding = const EdgeInsets.only(bottom: 8.0),
   }) : super(key: key);
 
+  Widget _title(BuildContext context) {
+    return Text(
+      title ?? 'No title provided',
+      style: Theme.of(context).textTheme.headline,
+      textAlign: TextAlign.left,
+    );
+  }
+
+  Widget _placeholder(BuildContext context) {
+    return SizedBox(
+      width: 100.0,
+      height: 20.0,
+      child: Container(
+        color: Colors.black12,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: padding,
-      child: Text(
-        title ?? 'No title provided',
-        style: Theme.of(context).textTheme.headline,
-        textAlign: TextAlign.left,
-      ),
+      child: title == null ? _placeholder(context) : _title(context),
     );
   }
 }
@@ -345,19 +384,27 @@ class _EventDate extends StatelessWidget {
             flex: 1,
             child: Padding(
               padding: const EdgeInsets.only(left: 4.0),
-              child: Text(
-                endTime != null && startTime != null
-                    ? _getFullDateString()
-                    : (startTime != null
-                        ? _getStartDateString()
-                        : 'No start date provided'),
-                style: Theme.of(context).textTheme.subhead,
-              ),
+              child: endTime != null && startTime != null
+                  ? Text(
+                      _getFullDateString(),
+                      style: Theme.of(context).textTheme.subhead,
+                    )
+                  : (startTime != null
+                      ? Text(
+                          _getStartDateString(),
+                          style: Theme.of(context).textTheme.subhead,
+                        )
+                      : SizedBox(
+                          height: 20.0,
+                          child: Container(
+                            color: Colors.black12,
+                          ),
+                        )),
             ),
           ),
         ],
       ),
-    ); // EVENT START TIME;
+    );
   }
 }
 
@@ -417,38 +464,63 @@ class _EventLocation extends StatelessWidget {
     );
   }
 
+  Widget _location(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(4.0),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => MapPage(
+                event: null,
+                latitude: latitude,
+                longitude: longitude,
+                location: location,
+              ))),
+//        (latitude != null && longitude != null)
+//            ? print('[${latitude.toString()}, ${longitude.toString()}]')
+//            : _askToAddLocation(context),
+      child: Row(
+        children: <Widget>[
+          showIcon ? _icon(context) : Container(),
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text(
+                location ?? '',
+                style: Theme.of(context).textTheme.subhead,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _placeholder(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        showIcon ? _icon(context) : Container(),
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: SizedBox(
+              width: 100.0,
+              height: 20.0,
+              child: Container(
+                color: Colors.black12,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: padding,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(4.0),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => MapPage(
-                  event: null,
-                  latitude: latitude,
-                  longitude: longitude,
-                  location: location,
-                ))),
-//        (latitude != null && longitude != null)
-//            ? print('[${latitude.toString()}, ${longitude.toString()}]')
-//            : _askToAddLocation(context),
-        child: Row(
-          children: <Widget>[
-            showIcon ? _icon(context) : Container(),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Text(
-                  location ?? '',
-                  style: Theme.of(context).textTheme.subhead,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: location == null ? _placeholder(context) : _location(context),
     );
   }
 }
@@ -478,29 +550,7 @@ class _EventOrg extends StatelessWidget {
     this.padding = const EdgeInsets.all(0.0),
   }) : super(key: key);
 
-  Widget _createSingleElement(context, onlyOne, oName, oPic) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        _createCircleAvatar(oName, oPic, onlyOne),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              onlyOne
-                  ? (oName ?? 'Unknown Organization')
-                  : 'Hosted by ${orgNames.length.toString()} organizations',
-              style: Theme.of(context).textTheme.subhead,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _createCircleAvatar(oName, oPic, onlyOne) {
+  Widget _createCircleAvatar(String oName, String oPic, bool onlyOne) {
     return ClipOval(
         child: onlyOne
             ? (oPic != null
@@ -540,6 +590,28 @@ class _EventOrg extends StatelessWidget {
               ));
   }
 
+  Widget _createSingleElement(context, onlyOne, oName, oPic) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        _createCircleAvatar(oName, oPic, onlyOne),
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              onlyOne
+                  ? (oName ?? 'Unknown Organization')
+                  : 'Hosted by ${orgNames.length.toString()} organizations',
+              style: Theme.of(context).textTheme.subhead,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _createMultipleElement(context) {
     return Column(
       children: Map.fromIterables(orgNames, orgPicturePaths)
@@ -550,14 +622,39 @@ class _EventOrg extends StatelessWidget {
     );
   }
 
+  Widget _placeholder(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        _createCircleAvatar(null, null, false),
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: SizedBox(
+              width: 100.0,
+              height: 20.0,
+              child: Container(
+                color: Colors.black12,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: padding,
-      child: (condensed || orgNames.length < 2)
-          ? _createSingleElement(
-              context, orgNames.length < 2, orgName, orgPicturePath)
-          : _createMultipleElement(context),
+      child: orgName == null && orgNames == null
+          ? _placeholder(context)
+          : ((condensed || orgNames.length < 2)
+              ? _createSingleElement(
+                  context, orgNames.length < 2, orgName, orgPicturePath)
+              : _createMultipleElement(context)),
     );
   }
 }

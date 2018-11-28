@@ -45,8 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final int numEventsOnStart =
       20; // number of events to retrieve on start (and each reload)
 
-  //final RefreshController _refreshController = RefreshController();
-
   @override
   void initState() {
     super.initState();
@@ -55,31 +53,21 @@ class _MyHomePageState extends State<MyHomePage> {
     events = Events(numEventsOnStart);
   }
 
-  Future<void> _getEvents() {
+  Future<void> refreshEvents() {
     final numEventsOnScreen = events.length;
 
     // This is to make the user see a reload
     setState(() {
-      events = Events();
+      events = Events(numEventsOnStart);
     });
 
-    // return a future that completes after getting events from server & setting
-    // events
-    return Future(() async {
-      http.Response response = await http.get(
-          _getEventsUrl(timeOfQuery, max(numEventsOnStart, numEventsOnScreen)));
-      setState(() {
-        events = Events.fromJson(response.body);
-      });
-    });
+    return events.getEvents(numEventsOnScreen);
   }
 
   Widget _buildEventsList(BuildContext context, int index) {
-    if (events.length == 0)
-      // TODO: there must be a better way to do this
-      return FakeEventContainer();
-    else
-      return EventContainer(event: events.list[index]);
+    return EventContainer(
+      eventBloc: events.list[index],
+    );
   }
 
   @override
@@ -103,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
               itemBuilder: _buildEventsList,
               itemCount: events.length,
             ),
-            onRefresh: _getEvents,
+            onRefresh: refreshEvents,
           ),
         ),
 //        SmartRefresher(

@@ -4,170 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// Wrapper for a list of events
-class Events {
-  /// Default number of events to fetch
-  static const int DEFAULT_NUMBER_EVENTS = 20;
-
-  /// List of Event objects
-  List<Event> _eventsList;
-
-  /// Time of query representing the time before the end of the first event
-  /// in the entire list
-  DateTime _timeOfQuery;
-
-  /// Constructor that takes a length
-  /// Will initially set the events to empty until a future returns with the
-  /// data from the network
-  Events(int len)
-      : _eventsList = List.generate(len, (index) => Event()),
-        _timeOfQuery = DateTime.now() {
-    _getEvents(len).then((List<dynamic> l) => _eventsList
-        .asMap()
-        .forEach((int index, Event event) => event.update(l[index])));
-  }
-
-  Future<List<dynamic>> _getEvents(int len) {
-    return http
-        .get(_getEventsUrl())
-        .then((http.Response response) => json.decode(response.body)['value'])
-        .catchError((Error error) {
-      print('Failed to fetch data: ${error.toString()}');
-      return null;
-    });
-  }
-
-  String _getEventsUrl(
-      {bool add = false, int numberOfEvents = DEFAULT_NUMBER_EVENTS}) {
-    final timeString =
-        _timeOfQuery // always use the time of query to construct get request
-            .toUtc()
-            .toIso8601String()
-            .replaceAll(RegExp(r':'), '%3A')
-            .replaceAll(RegExp(r'\.[0-9]*'), '');
-
-    // url for http get request
-    return 'https://anchorlink.vanderbilt.edu/api/discovery/' // base api url
-        'search/events?filter=EndsOn%20ge%20$timeString&top='
-        '${numberOfEvents.toString()}&orderBy%5B0%5D=EndsOn%20asc&query='
-        '&context=%7B%22branchIds%22%3A%5B%5D%7D' +
-
-        // if we are adding events then we want to skip however many we have currently
-        (add ? '&skip=${this.length.toString()}' : '');
-  }
-
-//  /// Factory method
-//  /// creates Events object from a list of decoded json
-//  Events.fromJson(String j)
-//      : _eventsList = _getLocationsFromDatabase(json
-//            .decode(j)['value']
-//            .map<Event>((item) => Event.fromMap(item))
-//            .toList());
-
-  /// Getter for the list
-  List<Event> get list => _eventsList; // returns the list
-
-  /// Getter for length of list
-  int get length => _eventsList.length; // returns length of list
-
-  /// Adds events from decoded json list l to this
-  /// adds locations to dbLocations set
-  void add(String j) => _eventsList.addAll(_getLocationsFromDatabase(json
-      .decode(j)['value']
-      .map<Event>((item) => Event.fromMap(item))
-      .toList()));
-
-  // TODO: implement find methods for finding a certain event
-  Event find([String time, String location, String org]) {
-    return null;
-  }
-
-  /// Gets the locations from Firebase database using an iterator
-  static List<Event> _getLocationsFromDatabase(List<Event> l) {
-    //l.asMap().map<String, Event>((int key, event) => MapEntry(event.location.replaceAll(RegExp(r'[0-9]|/'), '').trim(), event));
-
-    Map<String, List<int>> mappingKey = l.asMap().map<String, List<int>>((_,
-            event) =>
-        MapEntry(event.location.replaceAll(RegExp(r'[0-9]|/'), '').trim(), []));
-
-    for (int i = 0; i < l.length; ++i)
-      mappingKey[l[i].location.replaceAll(RegExp(r'[0-9]|/'), '').trim()]
-          .add(i);
-
-    Firestore.instance
-        .collection('locations')
-        .getDocuments()
-        .then((QuerySnapshot query) {
-      mappingKey.forEach((key, list) {
-        DocumentSnapshot currentDoc = query.documents
-            .firstWhere((doc) => doc.data.containsKey(key), orElse: () => null);
-
-        if (currentDoc == null) {
-          // No document with matching name
-          // TODO create document in firebase
-          int focusIndex = list.firstWhere(
-              (index) =>
-                  l[index].latitude != null && l[index].longitude != null,
-              orElse: () => null);
-          if (focusIndex == null) {
-            // No location with lat and lon :(
-            // TODO make empty array
-            Firestore.instance
-                .collection('locations')
-                .add({key: []})
-                .then((_) => print('Created $key document'))
-                .catchError(
-                    (_) => print('Could not create document with key: $key'));
-          } else {
-            // TODO make array with lat & lon of l[focusIndex]
-            Firestore.instance
-                .collection('locations')
-                .add({
-                  key: [
-                    {
-                      'Location': GeoPoint(
-                          l[focusIndex].latitude, l[focusIndex].longitude),
-                      'Confirmed': 0
-                    }
-                  ]
-                })
-                .then((_) => print('Created $key document'))
-                .catchError(
-                    (_) => print('Could not create document with key: $key'));
-          }
-        } else {
-          // document has matching
-          // OPTIONS:
-          // preconditions: array should be sorted based on # confirmed (descending)
-          // 1. no data => lat/lon = null
-          // 2. data
-          //    2.1. one location
-          //        2.1.1. data but not confirmed => set lat/lon & flag
-          //        2.1.2. data and confirmed => set lat/long & flag opposite of above
-          //    2.2. multiple locations
-          //        2.2.1. one confirmed, others are contesting => use confirmed??
-          //        2.2.2. none confirmed => pick random
-          //
-          // Possibility: set expiration & increment each time not picked & reset if picked
-          //              then throw away if expiration > some val
-          int focusIndex = list.firstWhere(
-              (index) =>
-                  l[index].latitude != null && l[index].longitude != null,
-              orElse: () => null);
-          if (focusIndex == null) {
-            // No location with lat and lon :(
-            // TODO
-          } else {
-            // TODO
-          }
-        }
-      });
-    }).catchError((error) => print('ERROR IN LOADING DOCS: ${error.message}'));
-
-    return l;
-  }
-}
-
 // TODO
 /*
 The following link gets you:
@@ -215,7 +51,6 @@ class Event {
   // amount of time passed since event ended
   Duration timeAfterEnded;
 
-  // TODO remove this later
   /// Default ctor
   Event(
       {this.id,
@@ -239,92 +74,13 @@ class Event {
       this.longitude,
       this.timeAfterEnded});
 
-//  Event.fromMap(Map<String, dynamic> m)
-//      :
-//        // id in integer form
-//        _id = int.parse(m['Id']),
-//        // organization in integer form
-//        _organizationId = m['OrganizationId'],
-//        // multiple orgs
-//        _organizationIds =
-//            m['OrganizationIds'].map<int>((item) => int.parse(item)).toList(),
-//        // org name
-//        organizationName = m['OrganizationName'],
-//        organizationNames = m['OrganizationNames']
-//            .map<String>((item) => item as String)
-//            .toList(),
-//        // sets profile pic to null if one is not available
-//        organizationProfilePicture = m['OrganizationProfilePicture'] != null
-//            ? 'https://se-infra-imageserver2.azureedge.net/clink/images/${m['OrganizationProfilePicture']}?preset=small-sq'
-//            : null,
-//        // name of event
-//        name = m['Name'],
-//        // event description in HTML
-//        description = m['Description'],
-//        // event location (name)
-//        location = m['Location'],
-//        // start time in DateTime format
-//        startsOn = DateTime.parse(m['StartsOn']),
-//        // end time in DateTime format
-//        endsOn = DateTime.parse(m['EndsOn']),
-//        // null if no image
-//        imagePath = m['ImagePath'] != null
-//            ? 'https://se-infra-imageserver2.azureedge.net/clink/images/' +
-//                m['ImagePath'] +
-//                '?preset=med-w'
-//            : null,
-//        // theme
-//        theme = m['Theme'],
-//        categoryIds =
-//            m['CategoryIds'].map<int>((item) => int.parse(item)).toList(),
-//        categoryNames =
-//            m['CategoryNames'].map<String>((item) => item as String).toList(),
-//        benefitNames =
-//            m['BenefitNames'].map<String>((item) => item as String).toList(),
-//        // double lat
-//        latitude = m['Latitude'] != null ? double.parse(m['Latitude']) : null,
-//        // double long
-//        longitude =
-//            m['Longitude'] != null ? double.parse(m['Longitude']) : null {
-//    // sets imagePath correctly if it is null i.e. need a default image
-//    if (imagePath == null) {
-//      String defaultImg =
-//          'learning.jpg'; // if theme is null then this is the image
-//      if (theme != null) {
-//        // uses theme to get an image
-//        switch (theme) {
-//          case 'Arts':
-//            defaultImg = theme.toLowerCase() + 'andmusic.jpg';
-//            break;
-//          case 'ThoughtfulLearning':
-//          case 'CommunityService':
-//            defaultImg = theme
-//                    .toLowerCase()
-//                    .replaceAll(RegExp(r'thoughtful|community'), '') +
-//                '.jpg';
-//            break;
-//          default:
-//            defaultImg = theme.toLowerCase() + '.jpg';
-//            break;
-//        }
-//      }
-//      imagePath =
-//          'https://static.campuslabsengage.com/discovery/images/events/' +
-//              defaultImg;
-//    }
-//
-//    if (organizationNames.length > 1) {
-//      _getOrganizationPictures();
-//    }
-//  }
-
-  void _getOrganizationPictures() {
-    http
+  Future<List<String>> _getOrganizationPictures() {
+    return http
         .get(
             'https://anchorlink.vanderbilt.edu/api/discovery/event/${id.toString()}/organizations?')
         .then((response) {
       List<dynamic> orgs = json.decode(response.body);
-      organizationProfilePictures = organizationIds.map((id) {
+      return organizationIds.map((id) {
         String pic =
             orgs.singleWhere((org) => org['id'] == id)['profilePicture'];
         return pic != null
@@ -341,50 +97,49 @@ class Event {
     }
   }
 
-  // TODO update every field with given list
-  void update(Map<String, dynamic> m) {
+  Future<void> update(Map<String, dynamic> m) async {
     // id in integer form
-    id = int.parse(m['Id']);
+    id = int.parse(m['id']);
     // organization in integer form
-    organizationId = m['OrganizationId'];
+    organizationId = m['OorganizationId'];
     // multiple orgs
     organizationIds =
-        m['OrganizationIds'].map<int>((item) => int.parse(item)).toList();
+        m['organizationIds'].map<int>((item) => int.parse(item)).toList();
     // org name
-    organizationName = m['OrganizationName'];
+    organizationName = m['organizationName'];
     organizationNames =
-        m['OrganizationNames'].map<String>((item) => item as String).toList();
+        m['organizationNames'].map<String>((item) => item as String).toList();
     // sets profile pic to null if one is not available
-    organizationProfilePicture = m['OrganizationProfilePicture'] != null
-        ? 'https://se-infra-imageserver2.azureedge.net/clink/images/${m['OrganizationProfilePicture']}?preset=small-sq'
+    organizationProfilePicture = m['organizationProfilePicture'] != null
+        ? 'https://se-infra-imageserver2.azureedge.net/clink/images/${m['organizationProfilePicture']}?preset=small-sq'
         : null;
     // name of event
-    name = m['Name'];
+    name = m['name'];
     // event description in HTML
-    description = m['Description'];
+    description = m['description'];
     // event location (name)
-    location = m['Location'];
+    location = m['location'];
     // start time in DateTime format
-    startsOn = DateTime.parse(m['StartsOn']);
+    startsOn = DateTime.parse(m['startsOn']);
     // end time in DateTime format
-    endsOn = DateTime.parse(m['EndsOn']);
+    endsOn = DateTime.parse(m['endsOn']);
     // null if no image
-    imagePath = m['ImagePath'] != null
+    imagePath = m['imagePath'] != null
         ? 'https://se-infra-imageserver2.azureedge.net/clink/images/' +
-            m['ImagePath'] +
+            m['imagePath'] +
             '?preset=med-w'
         : null;
     // theme
-    theme = m['Theme'];
-    categoryIds = m['CategoryIds'].map<int>((item) => int.parse(item)).toList();
+    theme = m['theme'];
+    categoryIds = m['categoryIds'].map<int>((item) => int.parse(item)).toList();
     categoryNames =
-        m['CategoryNames'].map<String>((item) => item as String).toList();
+        m['categoryNames'].map<String>((item) => item as String).toList();
     benefitNames =
-        m['BenefitNames'].map<String>((item) => item as String).toList();
+        m['benefitNames'].map<String>((item) => item as String).toList();
     // double lat
-    latitude = m['Latitude'] != null ? double.parse(m['Latitude']) : null;
+    latitude = m['latitude'] != null ? double.parse(m['latitude']) : null;
     // double long
-    longitude = m['Longitude'] != null ? double.parse(m['Longitude']) : null;
+    longitude = m['longitude'] != null ? double.parse(m['longitude']) : null;
     // sets imagePath correctly if it is null i.e. need a default image
     if (imagePath == null) {
       String defaultImg =
@@ -412,9 +167,71 @@ class Event {
               defaultImg;
     }
 
+    updateTime(DateTime.now());
+
     if (organizationNames.length > 1) {
-      _getOrganizationPictures();
+      organizationProfilePictures = await _getOrganizationPictures();
     }
+    return Future<void>.value();
+  }
+
+  Future<Null> getLocationFromDatabase() {
+    String key = location.replaceAll(RegExp(r'[^a-zA-Z]'), '').trim();
+    return Firestore.instance
+        .collection('locations')
+        .getDocuments()
+        .then((QuerySnapshot query) {
+      DocumentSnapshot currentDoc = query.documents
+          .firstWhere((doc) => doc.data.containsKey(key), orElse: () => null);
+
+      if (currentDoc == null) {
+        // No document with matching name
+        // TODO create document in firebase
+        if (latitude == null || longitude == null) {
+          // No location with lat and lon :(
+          // TODO make empty array
+          Firestore.instance
+              .collection('locations')
+              .add({key: []})
+              .then((_) => print('Created $key document'))
+              .catchError(
+                  (_) => print('Could not create document with key: $key'));
+        } else {
+          // TODO make array with lat & lon of l[focusIndex]
+          Firestore.instance
+              .collection('locations')
+              .add({
+                key: [
+                  {'Location': GeoPoint(latitude, longitude), 'Confirmed': 0}
+                ]
+              })
+              .then((_) => print('Created $key document'))
+              .catchError(
+                  (_) => print('Could not create document with key: $key'));
+        }
+      } else {
+        // document has matching
+        // OPTIONS:
+        // preconditions: array should be sorted based on # confirmed (descending)
+        // 1. no data => lat/lon = null
+        // 2. data
+        //    2.1. one location
+        //        2.1.1. data but not confirmed => set lat/lon & flag
+        //        2.1.2. data and confirmed => set lat/long & flag opposite of above
+        //    2.2. multiple locations
+        //        2.2.1. one confirmed, others are contesting => use confirmed??
+        //        2.2.2. none confirmed => pick random
+        //
+        // Possibility: set expiration & increment each time not picked & reset if picked
+        //              then throw away if expiration > some val
+        if (latitude == null || longitude == null) {
+          // No location with lat and lon :(
+          // TODO
+        } else {
+          // TODO
+        }
+      }
+    }).catchError((error) => print('ERROR IN LOADING DOCS: ${error.message}'));
   }
 }
 
@@ -431,14 +248,24 @@ class Events {
   Events([int len = DEFAULT_NUMBER_EVENTS])
       : _events = List.generate(len, (_) => EventBloc()),
         _timeOfQuery = DateTime.now() {
-    _getEvents(len).then((List<dynamic> l) => _updateEvents(l));
+    getEvents(len);
   }
 
-  Future<List<dynamic>> _getEvents(int len) {
+  int get length => _events.length;
+
+  List<EventBloc> get list => _events;
+
+  Future<void> getEvents(int len) {
+    return _getEventsRaw(len).then((dynamic l) => _updateEvents(l));
+  }
+
+  Future<dynamic> _getEventsRaw(int len) {
     return http
         .get(_getEventsUrl(numberOfEvents: len))
-        .then((http.Response response) => json.decode(response.body)['value'])
-        .catchError((Error error) {
+        .then((http.Response response) {
+      print(json.decode(response.body)['value']);
+      return json.decode(response.body)['value'];
+    }).catchError((Error error) {
       print('Failed to fetch data: ${error.toString()}');
       return null;
     });
@@ -454,10 +281,9 @@ class Events {
             .replaceAll(RegExp(r'\.[0-9]*'), '');
 
     // url for http get request
-    return 'https://anchorlink.vanderbilt.edu/api/discovery/' // base api url
-        'search/events?filter=EndsOn%20ge%20$timeString&top='
-        '${numberOfEvents.toString()}&orderBy%5B0%5D=EndsOn%20asc&query='
-        '&context=%7B%22branchIds%22%3A%5B%5D%7D' +
+    return 'https://anchorlink.vanderbilt.edu/api/discovery/event/' // base api url
+        'search?endsAfter=$timeString&orderByField=endsOn'
+        '&orderByDirection=ascending&status=Approved&take=${numberOfEvents.toString()}&query=' +
 
         // if we are adding events then we want to skip however many we have currently
         (add ? '&skip=${this._events.length.toString()}' : '');
@@ -477,10 +303,13 @@ class EventBloc {
     _eventSubject.add(_event);
   }
 
-  Stream<Event> get event => _eventSubject.stream;
+  Stream<Event> get stream => _eventSubject.stream;
 
-  void updateEvent(Map<String, dynamic> m) {
-    _event.update(m);
+  void updateEvent(Map<String, dynamic> m) async {
+    print('UPDATING EVENT ${m['name']}');
+
+    await _event.update(m);
+    //await _event.getLocationFromDatabase();
     _eventSubject.add(_event);
   }
 }
