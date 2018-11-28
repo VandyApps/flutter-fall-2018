@@ -11,3 +11,5 @@ build/
 lib/secrets.dart
 
 android/app/src/main/res/values/secrets.xml
+
+android/app/google-services.json

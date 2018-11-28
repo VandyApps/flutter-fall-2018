@@ -1,192 +1,11 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:events_vu/MapPage.dart';
+import 'package:events_vu/logic/Events.dart';
+import 'package:events_vu/ui/MapPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html_view/flutter_html_view.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-
-// =============================================================================
-// Implementation
-// =============================================================================
-class Events {
-  List<Event> _eventsList; // list of Event objects
-
-  Events() : _eventsList = <Event>[]; // set to empty list
-
-  // creates Events object from a list (decoded json)
-  Events.fromList(List<dynamic> l)
-      : _eventsList = l.map((item) => Event.fromMap(item)).toList();
-
-  List<Event> get list => _eventsList; // returns the
-
-  int get length => _eventsList.length; // returns length of list
-
-  // adds events to list
-  void add(List<dynamic> l) =>
-      _eventsList.addAll(l.map<Event>((item) => Event.fromMap(item)).toList());
-
-  // TODO: implement find methods for finding a certain event
-  Event find([String time, String location, String org]) {
-    return null;
-  }
-}
-
-// TODO
-/*
-The following link gets you:
-1. Event website url via: items[0]['freeText'] if first word of items[0]['questionText'] is "Event"
-2. Facebook event url via: items[1]['freeText'] if items[1]['questionText'] has 'Facebook' as first word
-3. Additional documents if items[2]['questionText'] first words are "Additional Document"
-  i. documentId via items[2]['documentId']
-  ii. filename via items[2]['filename']
-  iii. respondentId via items[2]['respondentId']
-  iv. The file url via 'https://anchorlink.vanderbilt.edu/legacy/fileuploadquestion/
-                        getdocument?documentId=${documentId}&respondentId=${respondentId}'
-URL =  'https://anchorlink.vanderbilt.edu/api/discovery/event/${event._id}/additionalfields?'
-*/
-
-/// Encapsulates an event that is gotten from the anchorlink api
-class Event {
-  final int _id; // String
-  final int _organizationId; // int
-  final List<int> _organizationIds; // List<dynamic>
-  final String _organizationName;
-  final List<String> _organizationNames; // List<dynamic>
-  final String _organizationProfilePicture;
-  List<String> _organizationProfilePictures;
-  final String _name;
-  final String _description;
-  final String _location;
-  final DateTime _startsOn; // String
-  final DateTime _endsOn; // String
-  // Default images associated with themes in same order:
-  // 'https://static.campuslabsengage.com/discovery/images/events/' followed by
-  // 'artsandmusic.jpg', 'athletics.jpg', 'service.jpg', 'cultural.jpg', 'fundraising.jpg',
-  // 'groupbusiness.jpg', 'social.jpg', 'spirituality.jpg', 'learning.jpg'
-  String _imagePath;
-
-  // possible themes:
-  // 'Arts', 'Athletics', 'CommunityService', 'Cultural', 'Fundraising', 'GroupBusiness'
-  // 'Social', 'Spirituality', 'ThoughtfulLearning'
-  final String _theme;
-  final List<int> _categoryIds; //? don't need
-  final List<String> _categoryNames; // List<dynamic>
-  final List<String> _benefitNames; // List<dynamic>
-  final double _latitude; // String
-  final double _longitude; // String
-
-  // amount of time passed since event ended
-  Duration _timeAfterEnded;
-
-  Event.fromMap(Map<String, dynamic> m)
-      :
-        // id in integer form
-        _id = int.parse(m['Id']),
-        // organization in integer form
-        _organizationId = m['OrganizationId'],
-        // multiple orgs
-        _organizationIds =
-            m['OrganizationIds'].map<int>((item) => int.parse(item)).toList(),
-        // org name
-        _organizationName = m['OrganizationName'],
-        _organizationNames = m['OrganizationNames']
-            .map<String>((item) => item as String)
-            .toList(),
-        // sets profile pic to null if one is not available
-        _organizationProfilePicture = m['OrganizationProfilePicture'] != null
-            ? 'https://se-infra-imageserver2.azureedge.net/clink/images/${m['OrganizationProfilePicture']}?preset=small-sq'
-            : null,
-        // name of event
-        _name = m['Name'],
-        // event description in HTML
-        _description = m['Description'],
-        // event location (name)
-        _location = m['Location'],
-        // start time in DateTime format
-        _startsOn = DateTime.parse(m['StartsOn']),
-        // end time in DateTime format
-        _endsOn = DateTime.parse(m['EndsOn']),
-        // null if no image
-        _imagePath = m['ImagePath'] != null
-            ? 'https://se-infra-imageserver2.azureedge.net/clink/images/' +
-                m['ImagePath'] +
-                '?preset=med-w'
-            : null,
-        // theme
-        _theme = m['Theme'],
-        _categoryIds =
-            m['CategoryIds'].map<int>((item) => int.parse(item)).toList(),
-        _categoryNames =
-            m['CategoryNames'].map<String>((item) => item as String).toList(),
-        _benefitNames =
-            m['BenefitNames'].map<String>((item) => item as String).toList(),
-        // double lat
-        _latitude = m['Latitude'] != null ? double.parse(m['Latitude']) : null,
-        // double long
-        _longitude =
-            m['Longitude'] != null ? double.parse(m['Longitude']) : null {
-    // sets _imagePath correctly if it is null i.e. need a default image
-    if (_imagePath == null) {
-      String defaultImg =
-          'learning.jpg'; // if _theme is null then this is the image
-      if (_theme != null) {
-        // uses theme to get an image
-        switch (_theme) {
-          case 'Arts':
-            defaultImg = _theme.toLowerCase() + 'andmusic.jpg';
-            break;
-          case 'ThoughtfulLearning':
-          case 'CommunityService':
-            defaultImg = _theme
-                    .toLowerCase()
-                    .replaceAll(RegExp(r'thoughtful|community'), '') +
-                '.jpg';
-            break;
-          default:
-            defaultImg = _theme.toLowerCase() + '.jpg';
-            break;
-        }
-      }
-      _imagePath =
-          'https://static.campuslabsengage.com/discovery/images/events/' +
-              defaultImg;
-    }
-
-    if (_organizationNames.length > 1) {
-      _getOrganizationPictures();
-    }
-  }
-
-  void _getOrganizationPictures() {
-    http
-        .get(
-            'https://anchorlink.vanderbilt.edu/api/discovery/event/${_id.toString()}/organizations?')
-        .then((response) {
-      List<dynamic> orgs = json.decode(response.body);
-      _organizationProfilePictures = _organizationIds.map((id) {
-        String pic =
-            orgs.singleWhere((org) => org['id'] == id)['profilePicture'];
-        return pic != null
-            ? 'https://se-infra-imageserver2.azureedge.net/clink/images/$pic?preset=small-sq'
-            : null;
-      }).toList();
-    });
-  }
-
-  // returns true if updated and false if not
-  void updateTime(DateTime now) {
-    if (now.isAfter(_endsOn)) {
-      _timeAfterEnded = now.difference(_endsOn);
-    }
-  }
-}
-
-// =============================================================================
-// Widget / Abstraction
-// =============================================================================
 
 class EventContainer extends StatelessWidget {
+  final EventBloc _eventBloc = EventBloc();
   final Event event;
 
   EventContainer({
@@ -217,8 +36,8 @@ class EventContainer extends StatelessWidget {
                 topRight: borderRadius.topRight,
               ),
               child: _EventPicture(
-                imagePath: event._imagePath,
-                timeAfterEnded: event._timeAfterEnded,
+                imagePath: event.imagePath,
+                timeAfterEnded: event.timeAfterEnded,
               ),
             ),
             Padding(
@@ -226,14 +45,15 @@ class EventContainer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _EventTitle(title: event._name),
+                  _EventTitle(title: event.name),
                   _EventDate(
-                    startTime: event._startsOn,
+                    startTime: event.startsOn,
                   ),
                   _EventLocation(
-                    location: event._location,
-                    latitude: event._latitude,
-                    longitude: event._longitude,
+                    event: event,
+                    location: event.location,
+                    latitude: event.latitude,
+                    longitude: event.longitude,
                   ),
                 ],
               ),
@@ -244,10 +64,10 @@ class EventContainer extends StatelessWidget {
                 color: Colors.grey[100],
                 child: _EventOrg(
                   padding: const EdgeInsets.all(8.0),
-                  orgName: event._organizationName,
-                  orgNames: event._organizationNames,
-                  orgPicturePath: event._organizationProfilePicture,
-                  orgPicturePaths: event._organizationProfilePictures,
+                  orgName: event.organizationName,
+                  orgNames: event.organizationNames,
+                  orgPicturePath: event.organizationProfilePicture,
+                  orgPicturePaths: event.organizationProfilePictures,
                 ),
               ),
             ),
@@ -272,17 +92,17 @@ class EventPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(event._theme.splitMapJoin(RegExp(r'([A-Z])'),
+        title: Text(event.theme.splitMapJoin(RegExp(r'([A-Z])'),
             onMatch: (m) => m.start == 0 ? '${m.group(1)}' : ' ${m.group(1)}',
             onNonMatch: (n) => '$n')),
-// Text(event._name),
+// Text(event.name),
       ),
       body: ListView(
         primary: false, // No scroll if unnecessary
         children: <Widget>[
           _EventPicture(
-            imagePath: event._imagePath,
-            timeAfterEnded: event._timeAfterEnded,
+            imagePath: event.imagePath,
+            timeAfterEnded: event.timeAfterEnded,
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -290,16 +110,17 @@ class EventPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _EventTitle(
-                  title: event._name,
+                  title: event.name,
                 ),
                 _EventDate(
-                  startTime: event._startsOn,
-                  endTime: event._endsOn,
+                  startTime: event.startsOn,
+                  endTime: event.endsOn,
                 ),
                 _EventLocation(
-                  location: event._location,
-                  latitude: event._latitude,
-                  longitude: event._longitude,
+                  event: event,
+                  location: event.location,
+                  latitude: event.latitude,
+                  longitude: event.longitude,
                 ),
                 SizedBox(
                   height: 16.0,
@@ -318,18 +139,18 @@ class EventPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.title,
                 ),
                 HtmlView(
-                  data: event._description ?? '',
+                  data: event.description ?? '',
                 ),
-                event._categoryNames.isEmpty
+                event.categoryNames.isEmpty
                     ? Container()
                     : Text(
                         'Categories',
                         style: Theme.of(context).textTheme.title,
                       ),
-                event._categoryNames.isEmpty
+                event.categoryNames.isEmpty
                     ? Container()
                     : Wrap(
-                        children: event._categoryNames
+                        children: event.categoryNames
                             .map((cat) => Chip(
                                   label: Text(cat),
                                 ))
@@ -337,16 +158,16 @@ class EventPage extends StatelessWidget {
                         spacing: 4.0,
                         runSpacing: 4.0,
                       ),
-                event._benefitNames.isEmpty
+                event.benefitNames.isEmpty
                     ? Container()
                     : Text(
                         'Benefits',
                         style: Theme.of(context).textTheme.title,
                       ),
-                event._benefitNames.isEmpty
+                event.benefitNames.isEmpty
                     ? Container()
                     : Wrap(
-                        children: event._benefitNames
+                        children: event.benefitNames
                             .map((ben) => Chip(
                                   label: Text(ben),
                                 ))
@@ -355,10 +176,10 @@ class EventPage extends StatelessWidget {
                         runSpacing: 4.0,
                       ),
                 _EventOrg(
-                  orgName: event._organizationName,
-                  orgNames: event._organizationNames,
-                  orgPicturePath: event._organizationProfilePicture,
-                  orgPicturePaths: event._organizationProfilePictures,
+                  orgName: event.organizationName,
+                  orgNames: event.organizationNames,
+                  orgPicturePath: event.organizationProfilePicture,
+                  orgPicturePaths: event.organizationProfilePictures,
                   condensed: false,
                 ),
               ],
@@ -399,9 +220,8 @@ class _EventPicture extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        Image.network(
-          imagePath,
-        ),
+        FadeInImage.assetNetwork(
+            placeholder: "assets/blank_image.png", image: imagePath),
         Opacity(
           opacity: hasEnded ? 1.0 : 0.0,
           child: Container(
@@ -470,8 +290,7 @@ class _EventDate extends StatelessWidget {
   }) : super(key: key);
 
   String _getStartDateString() {
-    DateTime d = startTime;
-    d = d.toLocal();
+    DateTime d = startTime.toLocal();
     String formatStr = "EEEE, MMMM d, yyyy 'at' h:mma";
     // if it is the year we are currently in, then don't show the year, otherwise show it
     if (d.year == DateTime.now().year)
@@ -480,10 +299,8 @@ class _EventDate extends StatelessWidget {
   }
 
   String _getFullDateString() {
-    DateTime d = startTime;
-    DateTime d2 = endTime;
-    d = d.toLocal();
-    d2 = d2.toLocal();
+    DateTime d = startTime.toLocal();
+    DateTime d2 = endTime.toLocal();
     String formatStr = "EEEE, MMMM d, yyyy 'at' h:mma";
     String formatStr2 = " 'to' EEEE, MMMM d, yyyy 'at' h:mma";
     // if it is the year we are currently in, then don't show the year, otherwise show it
@@ -550,14 +367,16 @@ class _EventLocation extends StatelessWidget {
   final double longitude;
   final bool showIcon;
   final EdgeInsets padding;
+  final Event event;
 
-  const _EventLocation({
+  _EventLocation({
     Key key,
     this.location,
     this.latitude,
     this.longitude,
     this.showIcon = true,
     this.padding = const EdgeInsets.all(0.0),
+    @required this.event,
   }) : super(key: key);
 
   Widget _icon(context) {
@@ -570,32 +389,32 @@ class _EventLocation extends StatelessWidget {
   Future _askToAddLocation(context) {
     // TODO
     print('No current location');
-    return Future<void>.value();
-//    return showDialog(
-//      context: context,
-//      barrierDismissible: false,
-//      builder: (context) => AlertDialog(
-//        title: Text('Add location to map?'),
-//        content: Text(
-//            'This location is not on the map yet. Would you like to place it?'),
-//        actions: <Widget>[
-//          FlatButton(
-//            child: Text('No'),
-//            onPressed: () {
-//              print('Not adding location'); // TODO
-//              Navigator.of(context).pop();
-//            },
-//          ),
-//          FlatButton(
-//            child: Text('Yes'),
-//            onPressed: () {
-//              print('Adding location'); // TODO
-//              Navigator.of(context).pop();
-//            },
-//          ),
-//        ],
-//      ),
-//    );
+//    return Future<void>.value();
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+            title: Text('Add location to map?'),
+            content: Text(
+                'This location is not on the map yet. Would you like to place it?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('No'),
+                onPressed: () {
+                  print('Not adding location'); // TODO
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text('Yes'),
+                onPressed: () {
+                  print('Adding location'); // TODO
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -605,10 +424,11 @@ class _EventLocation extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(4.0),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => MapPage(
-                  location: location,
+            builder: (context) => MapPage(
+                  event: null,
                   latitude: latitude,
                   longitude: longitude,
+                  location: location,
                 ))),
 //        (latitude != null && longitude != null)
 //            ? print('[${latitude.toString()}, ${longitude.toString()}]')

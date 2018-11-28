@@ -1,14 +1,13 @@
-import 'dart:convert';
-import 'package:events_vu/API_KEY.dart';
+import 'package:events_vu/secrets.dart';
 import 'package:flutter/material.dart';
-import 'package:events_vu/Events.dart';
+import 'package:events_vu/logic/Events.dart';
+import 'package:events_vu/ui/EventsUi.dart';
 import 'package:http/http.dart' as http;
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:map_view/map_view.dart';
 
 /*
 NOTE
-I have created another file called API_KEY.dart and stored my API key there.
+I have created another file called secrets.dart and stored my API key there.
 You can do the same and this will work.
  */
 void main() {
@@ -41,115 +40,147 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Events events = Events(); // empty events
+  Events events;
 
   final int numEventsOnStart =
       20; // number of events to retrieve on start (and each reload)
 
-  final String baseUrl =
-      'https://anchorlink.vanderbilt.edu/api/discovery/'; // base api url
-  String eventsUrl = ''; // additional url to get events
-
-  final RefreshController _refreshController = RefreshController();
-  final eventContainerList = <EventContainer>[];
+  //final RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
     super.initState();
 
-    final DateTime now = DateTime.now();
-    final nowUrlStr = now
-        .toIso8601String()
-        .replaceAll(RegExp(r':'), '%3A')
-        .replaceAll(RegExp(r'\.[0-9]*'), '');
-
-    // url for http get request
-    eventsUrl = 'search/events?filter=EndsOn%20ge%20$nowUrlStr-05%3A00&top='
-        '${numEventsOnStart.toString()}&orderBy%5B0%5D=EndsOn%20asc&query='
-        '&context=%7B%22branchIds%22%3A%5B%5D%7D';
-
-    // get request
-    http
-        .get(baseUrl + eventsUrl)
-        .then((http.Response response) => setState(() =>
-            events = Events.fromList(json.decode(response.body)['value'])))
-        .catchError(
-            (error) => print('Failed to fetch data: ' + error.toString()));
+    // initialize events
+    events = Events(numEventsOnStart);
   }
 
-  Widget _buildEventsList(BuildContext context, int index) =>
-      EventContainer(event: events.list[index]);
+  Future<void> _getEvents() {
+    final numEventsOnScreen = events.length;
+
+    // This is to make the user see a reload
+    setState(() {
+      events = Events();
+    });
+
+    // return a future that completes after getting events from server & setting
+    // events
+    return Future(() async {
+      http.Response response = await http.get(
+          _getEventsUrl(timeOfQuery, max(numEventsOnStart, numEventsOnScreen)));
+      setState(() {
+        events = Events.fromJson(response.body);
+      });
+    });
+  }
+
+  Widget _buildEventsList(BuildContext context, int index) {
+    if (events.length == 0)
+      // TODO: there must be a better way to do this
+      return FakeEventContainer();
+    else
+      return EventContainer(event: events.list[index]);
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        controller: _refreshController,
-        headerBuilder: (context, mode) => ClassicIndicator(
-              mode: mode,
-              releaseText: 'Release to refresh',
-              refreshingText: '',
-              completeText: '',
-              noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
-              failedText: 'Refresh failed',
-              idleText: 'Refresh',
-              iconPos: IconPosition.top,
-              spacing: 5.0,
-              refreshingIcon: const CircularProgressIndicator(strokeWidth: 2.0),
-              failedIcon: const Icon(Icons.clear, color: Colors.grey),
-              completeIcon: const Icon(Icons.done, color: Colors.grey),
-              idleIcon: const Icon(Icons.arrow_downward, color: Colors.grey),
-              releaseIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
+//      appBar: AppBar(
+//        title: Text(widget.title),
+//      ),
+      body: SafeArea(
+        child: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxScrolled) =>
+              <Widget>[
+                SliverAppBar(
+                  title: Text(widget.title),
+                  floating: true,
+                  snap: true,
+                ),
+              ],
+          body: RefreshIndicator(
+            child: ListView.builder(
+              itemBuilder: _buildEventsList,
+              itemCount: events.length,
             ),
-        footerBuilder: (context, mode) => ClassicIndicator(
-              mode: mode,
-              releaseText: 'Release to load',
-              refreshingText: '',
-              completeText: '',
-              noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
-              failedText: 'Refresh failed',
-              idleText: 'Load More',
-              iconPos: IconPosition.bottom,
-              spacing: 5.0,
-              refreshingIcon: const CircularProgressIndicator(strokeWidth: 2.0),
-              failedIcon: const Icon(Icons.clear, color: Colors.grey),
-              completeIcon: const Icon(Icons.done, color: Colors.grey),
-              idleIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
-              releaseIcon: const Icon(Icons.arrow_downward, color: Colors.grey),
-            ),
-        footerConfig: RefreshConfig(
-          triggerDistance: 125.0,
-          visibleRange: 100.0,
+            onRefresh: _getEvents,
+          ),
         ),
-        headerConfig: RefreshConfig(
-          triggerDistance: 125.0,
-          visibleRange: 100.0,
-          completeDuration: 500,
-        ),
-        onRefresh: (bool up) {
-          if (up) {
-            setState(() {});
-            _refreshController.sendBack(up, RefreshStatus.completed);
-          } else {
-            http
-                .get(baseUrl + eventsUrl + '&skip=${events.length.toString()}')
-                .then((response) {
-              setState(() => events.add(json.decode(response.body)['value']));
-              _refreshController.sendBack(up, RefreshStatus.completed);
-            }).catchError((error) =>
-                    _refreshController.sendBack(up, RefreshStatus.failed));
-          }
-        },
-        child: ListView.builder(
-          itemBuilder: _buildEventsList,
-          itemCount: events.length,
-        ),
+//        SmartRefresher(
+//          enablePullDown: true,
+//          enablePullUp: true,
+//          controller: _refreshController,
+//          headerBuilder: (context, mode) => ClassicIndicator(
+//                mode: mode,
+//                releaseText: 'Release to refresh',
+//                refreshingText: '',
+//                completeText: '',
+//                noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
+//                failedText: 'Refresh failed',
+//                idleText: 'Refresh',
+//                iconPos: IconPosition.top,
+//                spacing: 5.0,
+//                refreshingIcon:
+//                    const CircularProgressIndicator(strokeWidth: 2.0),
+//                failedIcon: const Icon(Icons.clear, color: Colors.grey),
+//                completeIcon: const Icon(Icons.done, color: Colors.grey),
+//                idleIcon: const Icon(Icons.arrow_downward, color: Colors.grey),
+//                releaseIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
+//              ),
+//          footerBuilder: (context, mode) => ClassicIndicator(
+//                mode: mode,
+//                releaseText: 'Release to load',
+//                refreshingText: '',
+//                completeText: '',
+//                noMoreIcon: const Icon(Icons.clear, color: Colors.grey),
+//                failedText: 'Refresh failed',
+//                idleText: 'Load More',
+//                iconPos: IconPosition.bottom,
+//                spacing: 5.0,
+//                refreshingIcon:
+//                    const CircularProgressIndicator(strokeWidth: 2.0),
+//                failedIcon: const Icon(Icons.clear, color: Colors.grey),
+//                completeIcon: const Icon(Icons.done, color: Colors.grey),
+//                idleIcon: const Icon(Icons.arrow_upward, color: Colors.grey),
+//                releaseIcon:
+//                    const Icon(Icons.arrow_downward, color: Colors.grey),
+//              ),
+//          footerConfig: RefreshConfig(
+//            triggerDistance: 125.0,
+//            visibleRange: 100.0,
+//          ),
+//          headerConfig: RefreshConfig(
+//            triggerDistance: 125.0,
+//            visibleRange: 100.0,
+//            completeDuration: 500,
+//          ),
+//          onRefresh: (bool up) {
+//            if (up) {
+//              setState(() {});
+//              _refreshController.sendBack(up, RefreshStatus.completed);
+//            } else {
+//              http
+//                  .get(
+//                      baseUrl + eventsUrl + '&skip=${events.length.toString()}')
+//                  .then((response) {
+//                setState(() => events.add(response.body));
+//                _refreshController.sendBack(up, RefreshStatus.completed);
+//              }).catchError((error) =>
+//                      _refreshController.sendBack(up, RefreshStatus.failed));
+//            }
+//          },
+//          // TODO: find a way to load fake content first then replace it
+//          // TODO: maybe use streams???
+//          child: ListView.builder(
+//            itemBuilder: _buildEventsList,
+//            itemCount: events.length,
+//          ),
+//        ),
       ),
     );
   }
 }
+
+// IDEA: refresh + infinite scroll where items are fake loaded until you get there
+// IDEA: back to top button
+// IDEA: use chips for searching based on certain tags / orgs
