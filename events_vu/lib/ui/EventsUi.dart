@@ -6,27 +6,25 @@ import 'package:intl/intl.dart';
 
 class EventContainer extends StatelessWidget {
   final EventBloc eventBloc;
+  final double margin;
 
   EventContainer({
     Key key,
     this.eventBloc,
+    this.margin = 8.0,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     BorderRadius borderRadius = BorderRadius.circular(4.0);
     return StreamBuilder(
+      key: key,
       stream: eventBloc.stream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return SizedBox(
-            width: 100.0,
-            height: 100.0,
-            child: Container(color: Colors.red),
-          );
+        if (!snapshot.hasData) return Container();
         Event event = snapshot.data;
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          margin: EdgeInsets.all(margin),
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius,
           ),
@@ -46,6 +44,8 @@ class EventContainer extends StatelessWidget {
                   child: _EventPicture(
                     imagePath: event.imagePath,
                     timeAfterEnded: event.timeAfterEnded,
+                    margin: margin,
+                    full: false,
                   ),
                 ),
                 Padding(
@@ -56,12 +56,14 @@ class EventContainer extends StatelessWidget {
                       _EventTitle(title: event.name),
                       _EventDate(
                         startTime: event.startsOn,
+                        full: false,
                       ),
                       _EventLocation(
                         event: event,
                         location: event.location,
                         latitude: event.latitude,
                         longitude: event.longitude,
+                        full: false,
                       ),
                     ],
                   ),
@@ -76,6 +78,7 @@ class EventContainer extends StatelessWidget {
                       orgNames: event.organizationNames,
                       orgPicturePath: event.organizationProfilePicture,
                       orgPicturePaths: event.organizationProfilePictures,
+                      full: false,
                     ),
                   ),
                 ),
@@ -113,6 +116,7 @@ class EventPage extends StatelessWidget {
           _EventPicture(
             imagePath: event.imagePath,
             timeAfterEnded: event.timeAfterEnded,
+            full: true,
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -125,12 +129,14 @@ class EventPage extends StatelessWidget {
                 _EventDate(
                   startTime: event.startsOn,
                   endTime: event.endsOn,
+                  full: true,
                 ),
                 _EventLocation(
                   event: event,
                   location: event.location,
                   latitude: event.latitude,
                   longitude: event.longitude,
+                  full: true,
                 ),
                 SizedBox(
                   height: 16.0,
@@ -189,6 +195,7 @@ class EventPage extends StatelessWidget {
                   orgPicturePath: event.organizationProfilePicture,
                   orgPicturePaths: event.organizationProfilePictures,
                   condensed: false,
+                  full: true,
                 ),
               ],
             ),
@@ -206,8 +213,16 @@ class _EventPicture extends StatelessWidget {
   final String imagePath;
   final bool hasEnded;
   final String timeSinceEndText;
+  final double margin;
+  final double aspectRatio = 600 / 360;
+  final bool full;
 
-  _EventPicture({Key key, this.imagePath, timeAfterEnded})
+  _EventPicture(
+      {Key key,
+      @required this.imagePath,
+      this.margin = 8.0,
+      @required this.full,
+      timeAfterEnded})
       : hasEnded = timeAfterEnded != null,
         timeSinceEndText = timeAfterEnded == null
             ? ''
@@ -224,11 +239,25 @@ class _EventPicture extends StatelessWidget {
                         : 'Ended ${timeAfterEnded.inDays.toString()} days ago'))),
         super(key: key);
 
+  Widget _pictureSize({Widget child}) {
+    return full
+        ? child
+        : AspectRatio(
+            aspectRatio: aspectRatio,
+            child: child,
+          );
+  }
+
   Widget _picture(BuildContext context) {
     return Stack(
       children: <Widget>[
-        FadeInImage.assetNetwork(
-            placeholder: "assets/blank_image.png", image: imagePath),
+        _pictureSize(
+          child: FadeInImage.assetNetwork(
+            placeholder: "assets/blank_image.png",
+            image: imagePath,
+            fit: BoxFit.fitWidth,
+          ),
+        ),
         Opacity(
           opacity: hasEnded ? 1.0 : 0.0,
           child: Container(
@@ -257,9 +286,8 @@ class _EventPicture extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context) {
-    return SizedBox(
-      width: 1200.0,
-      height: 200.0,
+    return AspectRatio(
+      aspectRatio: aspectRatio,
       child: Container(
         color: Colors.black12,
       ),
@@ -290,12 +318,13 @@ class _EventTitle extends StatelessWidget {
       title ?? 'No title provided',
       style: Theme.of(context).textTheme.headline,
       textAlign: TextAlign.left,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
   Widget _placeholder(BuildContext context) {
     return SizedBox(
-      width: 100.0,
       height: 20.0,
       child: Container(
         color: Colors.black12,
@@ -313,19 +342,19 @@ class _EventTitle extends StatelessWidget {
 }
 
 class _EventDate extends StatelessWidget {
-//  final EdgeInsets padding;
   final DateTime startTime;
   final DateTime endTime;
   final bool showIcon;
   final EdgeInsets padding;
+  final bool full;
 
   const _EventDate({
     Key key,
-    //this.padding,
     this.startTime,
     this.endTime,
     this.showIcon = true,
     this.padding = const EdgeInsets.only(bottom: 4.0),
+    @required this.full,
   }) : super(key: key);
 
   String _getStartDateString() {
@@ -366,6 +395,20 @@ class _EventDate extends StatelessWidget {
         d.timeZoneName;
   }
 
+  Widget _fullDateText(String text, BuildContext context) {
+    return full
+        ? Text(
+            text,
+            style: Theme.of(context).textTheme.subhead,
+          )
+        : Text(
+            text,
+            style: Theme.of(context).textTheme.subhead,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -385,15 +428,9 @@ class _EventDate extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 4.0),
               child: endTime != null && startTime != null
-                  ? Text(
-                      _getFullDateString(),
-                      style: Theme.of(context).textTheme.subhead,
-                    )
+                  ? _fullDateText(_getFullDateString(), context)
                   : (startTime != null
-                      ? Text(
-                          _getStartDateString(),
-                          style: Theme.of(context).textTheme.subhead,
-                        )
+                      ? _fullDateText(_getStartDateString(), context)
                       : SizedBox(
                           height: 20.0,
                           child: Container(
@@ -415,15 +452,17 @@ class _EventLocation extends StatelessWidget {
   final bool showIcon;
   final EdgeInsets padding;
   final Event event;
+  final bool full;
 
   _EventLocation({
     Key key,
-    this.location,
+    @required this.location,
     this.latitude,
     this.longitude,
     this.showIcon = true,
     this.padding = const EdgeInsets.all(0.0),
     @required this.event,
+    @required this.full,
   }) : super(key: key);
 
   Widget _icon(context) {
@@ -464,6 +503,20 @@ class _EventLocation extends StatelessWidget {
     );
   }
 
+  Widget _fullLocation(BuildContext context) {
+    return full
+        ? Text(
+            location ?? 'No available location',
+            style: Theme.of(context).textTheme.subhead,
+          )
+        : Text(
+            location ?? '',
+            style: Theme.of(context).textTheme.subhead,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+  }
+
   Widget _location(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(4.0),
@@ -484,10 +537,7 @@ class _EventLocation extends StatelessWidget {
             flex: 1,
             child: Padding(
               padding: const EdgeInsets.only(left: 4.0),
-              child: Text(
-                location ?? '',
-                style: Theme.of(context).textTheme.subhead,
-              ),
+              child: _fullLocation(context),
             ),
           ),
         ],
@@ -504,7 +554,6 @@ class _EventLocation extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: SizedBox(
-              width: 100.0,
               height: 20.0,
               child: Container(
                 color: Colors.black12,
@@ -538,6 +587,7 @@ class _EventOrg extends StatelessWidget {
   final bool condensed;
   final double pictureScale;
   final EdgeInsets padding;
+  final bool full;
 
   const _EventOrg({
     Key key,
@@ -548,6 +598,7 @@ class _EventOrg extends StatelessWidget {
     this.pictureScale = 2.0,
     this.condensed = true,
     this.padding = const EdgeInsets.all(0.0),
+    @required this.full,
   }) : super(key: key);
 
   Widget _createCircleAvatar(String oName, String oPic, bool onlyOne) {
@@ -590,7 +641,22 @@ class _EventOrg extends StatelessWidget {
               ));
   }
 
-  Widget _createSingleElement(context, onlyOne, oName, oPic) {
+  Widget _fullOrgName(String oName, BuildContext context) {
+    return full
+        ? Text(
+            oName,
+            style: Theme.of(context).textTheme.subhead,
+          )
+        : Text(
+            oName,
+            style: Theme.of(context).textTheme.subhead,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+  }
+
+  Widget _createSingleElement(
+      BuildContext context, bool onlyOne, String oName, String oPic) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -600,12 +666,11 @@ class _EventOrg extends StatelessWidget {
           flex: 1,
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              onlyOne
-                  ? (oName ?? 'Unknown Organization')
-                  : 'Hosted by ${orgNames.length.toString()} organizations',
-              style: Theme.of(context).textTheme.subhead,
-            ),
+            child: _fullOrgName(
+                onlyOne
+                    ? (oName ?? 'Unknown Organization')
+                    : 'Hosted by ${orgNames.length.toString()} organizations',
+                context),
           ),
         ),
       ],
@@ -633,7 +698,6 @@ class _EventOrg extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: SizedBox(
-              width: 100.0,
               height: 20.0,
               child: Container(
                 color: Colors.black12,

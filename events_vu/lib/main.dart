@@ -41,9 +41,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Events events;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final int numEventsOnStart =
       20; // number of events to retrieve on start (and each reload)
+
+  final double margin = 8.0;
 
   @override
   void initState() {
@@ -67,12 +70,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildEventsList(BuildContext context, int index) {
     return EventContainer(
       eventBloc: events.list[index],
+      margin: margin,
+      key: Key(index.toString()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: scaffoldKey,
 //      appBar: AppBar(
 //        title: Text(widget.title),
 //      ),
@@ -90,6 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView.builder(
               itemBuilder: _buildEventsList,
               itemCount: events.length,
+              // must have itemExtent so that the scroll view can guess how much
+              // that it needs jump on fast scrolls
+              // TODO: look at ListView.custom & specify algorithm for finding extent
+              // height of picture should be (width - 16) * 360 / 600 rounded to nearest tenth, the rest should always be 104.0 + 57.5
+              itemExtent: 360 / 600 * MediaQuery.of(context).size.width +
+                  104 +
+                  57.5 +
+                  margin * 2 * (1 - 360 / 600),
             ),
             onRefresh: refreshEvents,
           ),
