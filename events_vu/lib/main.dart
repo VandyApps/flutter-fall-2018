@@ -2,8 +2,8 @@ import 'package:events_vu/secrets.dart';
 import 'package:flutter/material.dart';
 import 'package:events_vu/logic/Events.dart';
 import 'package:events_vu/ui/EventsUi.dart';
-import 'package:http/http.dart' as http;
 import 'package:map_view/map_view.dart';
+import 'package:rxdart/rxdart.dart';
 
 /*
 NOTE
@@ -42,6 +42,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Events events;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  BehaviorSubject _scrollPosition = BehaviorSubject<int>();
 
   final int numEventsOnStart =
       20; // number of events to retrieve on start (and each reload)
@@ -54,6 +55,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // initialize events
     events = Events(numEventsOnStart);
+
+    // use this to avoid calling `setState()` in a build method
+    _scrollPosition.listen((index) {
+      if (index >= events.length - 2) {
+        print('adding more');
+        setState(() {
+          events.getEvents();
+        });
+      }
+    });
   }
 
   Future<void> refreshEvents() {
@@ -61,13 +72,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // This is to make the user see a reload
     setState(() {
-      events = Events(numEventsOnStart);
+      events = Events(numEventsOnScreen);
     });
 
-    return events.getEvents(numEventsOnScreen);
+    return Future.value();
   }
 
   Widget _buildEventsList(BuildContext context, int index) {
+    _scrollPosition.add(index);
+
     return EventContainer(
       eventBloc: events.list[index],
       margin: margin,

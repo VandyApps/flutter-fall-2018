@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
@@ -246,7 +245,7 @@ class Events {
   List<EventBloc> _events;
 
   Events([int len = DEFAULT_NUMBER_EVENTS])
-      : _events = List.generate(len, (_) => EventBloc()),
+      : _events = <EventBloc>[],
         _timeOfQuery = DateTime.now() {
     getEvents(len);
   }
@@ -255,24 +254,26 @@ class Events {
 
   List<EventBloc> get list => _events;
 
-  Future<void> getEvents(int len) {
-    return _getEventsRaw(len).then((dynamic l) => _updateEvents(l));
+  Future<void> getEvents([int len = DEFAULT_NUMBER_EVENTS]) {
+    int originalLength = _events.length;
+    _events.addAll(List.generate(DEFAULT_NUMBER_EVENTS, (_) => EventBloc()));
+    return _getEventsRaw(len, originalLength == 0 ? null : originalLength)
+        .then((dynamic l) {
+      _updateEvents(l, originalLength);
+    });
   }
 
-  Future<dynamic> _getEventsRaw(int len) {
+  Future<dynamic> _getEventsRaw(int len, int skip) {
     return http
-        .get(_getEventsUrl(numberOfEvents: len))
-        .then((http.Response response) {
-      print(json.decode(response.body)['value']);
-      return json.decode(response.body)['value'];
-    }).catchError((Error error) {
+        .get(_getEventsUrl(numberOfEvents: len, skip: skip))
+        .then((http.Response response) => json.decode(response.body)['value'])
+        .catchError((Error error) {
       print('Failed to fetch data: ${error.toString()}');
       return null;
     });
   }
 
-  String _getEventsUrl(
-      {bool add = false, int numberOfEvents = DEFAULT_NUMBER_EVENTS}) {
+  String _getEventsUrl({int numberOfEvents = DEFAULT_NUMBER_EVENTS, int skip}) {
     final timeString =
         _timeOfQuery // always use the time of query to construct get request
             .toUtc()
@@ -286,12 +287,12 @@ class Events {
         '&orderByDirection=ascending&status=Approved&take=${numberOfEvents.toString()}&query=' +
 
         // if we are adding events then we want to skip however many we have currently
-        (add ? '&skip=${this._events.length.toString()}' : '');
+        (skip != null ? '&skip=${skip.toString()}' : '');
   }
 
-  void _updateEvents(List<dynamic> l) {
-    _events.asMap().forEach(
-        (int index, EventBloc eventBloc) => eventBloc.updateEvent(l[index]));
+  void _updateEvents(List<dynamic> l, int skip) {
+    _events.asMap().forEach((int index, EventBloc eventBloc) =>
+        index >= skip ? eventBloc.updateEvent(l[index - skip]) : null);
   }
 }
 
@@ -306,8 +307,6 @@ class EventBloc {
   Stream<Event> get stream => _eventSubject.stream;
 
   void updateEvent(Map<String, dynamic> m) async {
-    print('UPDATING EVENT ${m['name']}');
-
     await _event.update(m);
     //await _event.getLocationFromDatabase();
     _eventSubject.add(_event);

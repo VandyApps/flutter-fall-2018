@@ -253,7 +253,7 @@ class _EventPicture extends StatelessWidget {
       children: <Widget>[
         _pictureSize(
           child: FadeInImage.assetNetwork(
-            placeholder: "assets/blank_image.png",
+            placeholder: "assets/blank_image_light_gray.png",
             image: imagePath,
             fit: BoxFit.fitWidth,
           ),
@@ -722,3 +722,5 @@ class _EventOrg extends StatelessWidget {
     );
   }
 }
+
+// TODO: figure out a way to seemlessly transition from preload to fully loaded

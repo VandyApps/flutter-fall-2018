@@ -7,13 +7,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="afda861c-5a7f-4ec2-a450-ebd9f98656c3" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/logic/Events.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/logic/Events.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/ui/EventsUi.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/ui/EventsUi.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -31,8 +27,8 @@
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="103" column="23" selection-start-line="103" selection-start-column="23" selection-end-line="103" selection-end-column="23" />
+            <state relative-caret-position="101">
+              <caret line="59" column="36" lean-forward="true" selection-start-line="59" selection-start-column="36" selection-end-line="59" selection-end-column="36" />
               <folding>
                 <element signature="e#0#40#0" expanded="true" />
               </folding>
@@ -49,14 +45,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EventsUi.dart" pinned="false" current-in-tab="true">
+      <file leaf-file-name="EventsUi.dart" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/ui/EventsUi.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="672" column="23" selection-start-line="672" selection-start-column="23" selection-end-line="672" selection-end-column="23" />
+            <state relative-caret-position="2567">
+              <caret line="718" column="34" selection-start-line="718" selection-start-column="34" selection-end-line="718" selection-end-column="34" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fade_in_image.dart" pinned="false" current-in-tab="false">
+        <entry file="file://C:/flutter/packages/flutter/lib/src/widgets/fade_in_image.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="75">
+              <caret line="167" column="24" selection-start-line="167" selection-start-column="24" selection-end-line="167" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -70,11 +75,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Events.dart" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Events.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/logic/Events.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="312" selection-start-line="312" selection-end-line="312" />
+            <state relative-caret-position="158">
+              <caret line="259" column="73" selection-start-line="259" selection-start-column="73" selection-end-line="259" selection-end-column="73" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
@@ -128,9 +133,12 @@
       <find>Events</find>
       <find>list</find>
       <find>_getEvents</find>
-      <find>updateTime</find>
       <find>event</find>
       <find>title</find>
+      <find>fade</find>
+      <find>Picture</find>
+      <find>updateTime</find>
+      <find>print</find>
       <find>_placeholder</find>
     </findStrings>
   </component>
@@ -152,10 +160,10 @@
         <option value="$PROJECT_DIR$/lib/secrets.dart" />
         <option value="$PROJECT_DIR$/android/app/src/main/res/values/secrets.xml" />
         <option value="$PROJECT_DIR$/lib/logic/EventsLogic.dart" />
-        <option value="$PROJECT_DIR$/lib/logic/Events.dart" />
         <option value="$PROJECT_DIR$/pubspec.yaml" />
-        <option value="$PROJECT_DIR$/lib/main.dart" />
         <option value="$PROJECT_DIR$/lib/ui/EventsUi.dart" />
+        <option value="$PROJECT_DIR$/lib/main.dart" />
+        <option value="$PROJECT_DIR$/lib/logic/Events.dart" />
       </list>
     </option>
   </component>
@@ -364,7 +372,7 @@
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49656358" visible="true" weight="0.38484398" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49656358" visible="true" weight="0.38484398" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32986626" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.32838038" />
       <window_info id="Captures" order="2" />
@@ -372,7 +380,7 @@
       <window_info anchor="bottom" id="Find" order="1" weight="0.32935917" />
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info active="true" anchor="right" id="Flutter Inspector" order="3" visible="true" weight="0.29553264" />
+      <window_info anchor="right" id="Flutter Inspector" order="3" weight="0.29553264" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -423,20 +431,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/android/app/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="850">
-          <caret line="50" column="5" selection-start-line="50" selection-start-column="5" selection-end-line="50" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/ui/MapPage.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1581">
-          <caret line="93" column="26" lean-forward="true" selection-start-line="93" selection-start-column="26" selection-end-line="93" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -771,30 +765,10 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/logic/EventsLogic.dart" />
-    <entry file="file://$PROJECT_DIR$/lib/logic/Events.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="312" selection-start-line="312" selection-end-line="312" />
-          <folding>
-            <element signature="e#0#22#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pubspec.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="99">
           <caret line="36" selection-start-line="36" selection-end-line="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/main.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="103" column="23" selection-start-line="103" selection-start-column="23" selection-end-line="103" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -812,12 +786,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/flutter/packages/flutter/lib/src/widgets/image.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1418">
+          <caret line="482" column="22" selection-start-line="482" selection-start-column="22" selection-end-line="482" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/flutter/packages/flutter/lib/src/widgets/fade_in_image.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="167" column="24" selection-start-line="167" selection-start-column="24" selection-end-line="167" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/ui/EventsUi.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="672" column="23" selection-start-line="672" selection-start-column="23" selection-end-line="672" selection-end-column="23" />
+        <state relative-caret-position="2567">
+          <caret line="718" column="34" selection-start-line="718" selection-start-column="34" selection-end-line="718" selection-end-column="34" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/main.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="101">
+          <caret line="59" column="36" lean-forward="true" selection-start-line="59" selection-start-column="36" selection-end-line="59" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/logic/Events.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="259" column="73" selection-start-line="259" selection-start-column="73" selection-end-line="259" selection-end-column="73" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
